@@ -7,7 +7,7 @@ CXXFLAGS+= `python3-config --cflags`
 CXXFLAGS+= -Iextern/eigen -Iextern/pybind11/include
 CXXFLAGS+= -std=c++14 -ffast-math -funsafe-math-optimizations -fopenmp
 CXXFLAGS+= -DNDEBUG -O3
-CXXFLAGS+= -Wno-unused-variable
+CXXFLAGS+= -Wno-unused-variable -Wno-maybe-uninitialized
 CXXFLAGS+= -fPIC -flto -fsized-deallocation
 LDFLAGS+= -shared `python3-config --ldflags`
 

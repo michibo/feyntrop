@@ -13,7 +13,7 @@ Copyright (c) 2020-2023   Michael Borinsky
 #include "components.hpp"
 #include "random.hpp"
 
-#include "symanzik_polynomials.hpp"
+#include "laplacian.hpp"
 
 // cut edge, Jr, r, mm, L
 using cut_tuple = tuple< int, double, double, bool, int >;

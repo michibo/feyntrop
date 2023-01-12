@@ -10,7 +10,7 @@ Copyright (c) 2020-2023   Michael Borinsky
 
 #include "random.hpp"
 #include "tropical_sampling.hpp"
-#include "symanzik_polynomials.hpp"
+#include "laplacian.hpp"
 
 void infinite_value_warning( const graph& g, complex<double> R, complex<double> cPsi, complex<double> cPPhi, const Eigen::VectorXd& X, const Eigen::VectorXcd& cX )
 {
