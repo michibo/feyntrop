@@ -9,6 +9,7 @@ To download *feyntrop* and the necessary submodules ([Eigen](//eigen.tuxfamily.o
 
 ```
 git clone --recursive git@github.com:michibo/feyntrop.git
+cd feyntrop
 ```
 
 or 
@@ -33,10 +34,7 @@ make
 Tutorial
 --------
 
-To run the tutorial, make sure to have [jupyter-notebook](//jupyter.org/) installed.
-
-To run the tutorial call
-
+To run the tutorial, make sure to have [jupyter-notebook](//jupyter.org/) installed. Then call
 ```
 jupyter notebook tutorial.ipynb
 ```
