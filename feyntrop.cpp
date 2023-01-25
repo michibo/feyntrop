@@ -12,6 +12,7 @@ Copyright (c) 2020-2023   Michael Borinsky
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 #include <pybind11/eigen.h>
 
 #include "graph.hpp"
@@ -136,6 +137,9 @@ PYBIND11_MODULE(feyntrop, m) {
                 return s.str();
             });
 
-    m.def("integrate_graph", &integrate_graph);
+    m.def("integrate_graph", &integrate_graph,
+            py::call_guard<py::scoped_ostream_redirect,
+                           py::scoped_estream_redirect>()
+        );
 }
 
