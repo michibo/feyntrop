@@ -55,8 +55,6 @@ def prefactor(edges, D0, eps_order):
     nutot = sum(nu)
     L = E - V + 1 # loops
     w = nutot - L * (D0-2*eps)/2 # superficial degree of divergence
-    # sign = (-1)**nutot # include sign to match with AMFlow and pySecDec
-    # num = sign * gamma(w)
     num = gamma(w)
     den = [gamma(nu[i]) for i in range(E)]
     den = prod(den)
@@ -136,9 +134,7 @@ def set_momenta(edges, pspt):
 # trop_int is the value of the Feynman integral (without prefactor)
 # Itr is the normalization factor in the tropical measure
 def tropical_integration(graph, masses, mom_var, D0, eps_order, Lambda, N):
-    print("\nprefactor:")
-    print(prefactor(graph, D0, eps_order))
-    print("")
+    print("Prefactor: " + str(prefactor(graph, D0, eps_order)) + ".")
     g = feyntrop.graph(graph)
     pi_pj = set_momenta(graph, mom_var)
     trop_int, Itr  = feyntrop.integrate_graph(g, D0, pi_pj, masses, eps_order, Lambda, N)
