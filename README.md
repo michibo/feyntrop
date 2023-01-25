@@ -1,17 +1,34 @@
 feyntrop
 ========
 
-Building:
+Download
+--------
 
-* cd extern
-* git clone https://github.com/pybind/pybind11.git
-* git clone git@gitlab.com:libeigen/eigen.git
-* cd ..
-* make feyntrop.so
-* mv feyntrop.so tutorials_and_examples
 
-Run the tutorial:
+To download *feyntrop* call and the necessary submodules ([Eigen][//eigen.tuxfamily.org/] and pybind11)
 
-* cd tutorials_and_examples
-* jupyter notebook
-* run the tutorial_2L_3pt.ipynb in browser
+> git clone --recursive git@github.com:michibo/feyntrop.git
+
+or 
+
+> git clone git@github.com:michibo/feyntrop.git
+> cd feyntrop
+> git submodule update --init --recursive
+
+Compilation
+-----------
+
+Make sure to have [python][//python.org] installed.
+
+To compile *feyntrop* call
+
+> make
+
+Tutorial
+--------
+
+To run the tutorial, make sure to have [jupyter-notebook][//jupyter.org/] installed.
+
+To run the tutorial call
+
+> jupyter notebook tutorial_2L_3pt.ipynb
