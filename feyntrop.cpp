@@ -36,8 +36,8 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
         throw domain_error(s.str());
     }
 
-    cout << "pipj: " << endl;
-    cout << scalarproducts << endl;
+    // cout << "pipj: " << endl;
+    // cout << scalarproducts << endl;
 
     // compute the negative absolute of the scalarproducts matrix
     // i.e. make all eigenvalues negative while keeping Eigen vectors.
@@ -49,7 +49,8 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     double deformation_lambda = 0.0;
     if( !scalarproducts.isApprox( scalarproducts_abs ) ) // activate analytic continuation if scalarproducts is not negative-semi-definite
     {
-        cout << "Analytic continuation is activated! Please ensure that there are no IR singularities and that we are in a sufficiently generic momentum configuration. For instance, vanishing external particle masses (p_i * p_i = 0) might also cause problems as the generalized permutahedron property might become invalid. " << endl;
+        // cout << "Analytic continuation is activated! Please ensure that there are no IR singularities and that we are in a sufficiently generic momentum configuration. For instance, vanishing external particle masses (p_i * p_i = 0) might also cause problems as the generalized permutahedron property might become invalid. " << endl;
+        cout << "Analytic continuation: activated." << endl;
 
         deformation_lambda = lambda;
     }
@@ -66,7 +67,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
 
     // Start with Jr subgraph table: (i.e. preprocessing step)
-    cout << "Started calculating Jr-table" << endl;
+    // cout << "Started calculating Jr-table" << endl;
 
     start = std::chrono::system_clock::now();
     tie(subgraph_table, W, IGtr, bGPproperty) = generate_subgraph_table( g, D, scalarproducts, masses_sqr, num_eps_terms > 1, deformation_lambda != 0.0 );
@@ -74,17 +75,17 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     elapsed_seconds = end-start;
 
-    cout << "Finished calculating Jr-table in " << elapsed_seconds.count() << " seconds " << endl;
-    cout << "Using " << subgraph_table.size() * sizeof(J_vector::value_type) << " bytes of RAM " << endl;
+    // cout << "Finished calculating Jr-table in " << elapsed_seconds.count() << " seconds " << endl;
+    // cout << "Using " << subgraph_table.size() * sizeof(J_vector::value_type) << " bytes of RAM " << endl;
 
     // Tropical results:
-    cout << "Superficial degree of divergence: " << W << endl;
-    cout << "I^tr = " << IGtr << endl;
+    // cout << "Superficial degree of divergence: " << W << endl;
+    // cout << "I^tr = " << IGtr << endl;
 
     if(bGPproperty)
-        cout << "The generalized permutahedron property is fulfilled." << endl;
+        cout << "Generalized permutahedron property: fulfilled." << endl;
     else
-        cout << "The generalized permutahedron property is NOT fulfilled. Integration might fail." << endl;
+        cout << "Generalized permutahedron property: NOT fulfilled. Integration may fail." << endl;
 
 
     // Initialize multithreading
@@ -94,7 +95,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     // Initialize random number generator
     true_random::xoshiro256 gen( 0 );
 
-    cout << "Start integrating using " << max_threads << " threads and N = " << (double)N << " points" <<  endl;
+    cout << "Start integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
     start = std::chrono::system_clock::now();
     vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, scalarproducts_abs, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
@@ -103,9 +104,9 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     elapsed_seconds = end-start;
 
     // Some performance statistics
-    cout << "Finished sampling " << (double)N << " points in " << elapsed_seconds.count() << " seconds " << endl;
-    cout << "Average speed: " << N/elapsed_seconds.count() << " samples / second " << endl;
-    //cout << "Relative accuracy: " << res_r.acc()/res_r.avg() << endl;
+    cout << "Finished in " << elapsed_seconds.count() << " seconds = " << elapsed_seconds.count()/3600 << " hours." << endl;
+    // cout << "Average speed: " << N/elapsed_seconds.count() << " samples / second " << endl;
+    // cout << "Relative accuracy: " << res_r.acc()/res_r.avg() << endl;
 
     // Tropically accelerated Monte Carlo results:
     //cout << "I = (" << res_r.avg() << " + i * " << res_i.avg() << ") +/- (" << res_r.acc() << " + i * " << res_i.acc() << ")" << endl;
