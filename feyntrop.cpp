@@ -95,7 +95,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     // Initialize random number generator
     true_random::xoshiro256 gen( 0 );
 
-    cout << "Start integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
+    cout << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
     start = std::chrono::system_clock::now();
     vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, scalarproducts_abs, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
