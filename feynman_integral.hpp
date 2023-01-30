@@ -12,23 +12,19 @@ Copyright (c) 2020-2023   Michael Borinsky
 #include "tropical_sampling.hpp"
 #include "laplacian.hpp"
 
-void infinite_value_warning( const graph& g, complex<double> R, complex<double> cPsi, complex<double> cPPhi, const Eigen::VectorXd& X, const Eigen::VectorXcd& cX )
+void infinite_value_warning( size_t sample_num, ostream& serr, const graph& g, complex<double> R, complex<double> cPsi, complex<double> cPPhi, const Eigen::VectorXd& X, const Eigen::VectorXcd& cX )
 {
-    #pragma omp critical
-    {
-        cout << "Warning: Sampled value " << R << " - floating point accuracy or numerical stabilty seem to be insufficient - dropping this point" << endl;
-        cout << "If this happens often, the result will not be reliable!" << endl;
+    serr << "Warning: Sampled value number " << sample_num << " is " << R << " - floating point accuracy or numerical stabilty seem to be insufficient - dropping this point. ";
+    serr << "If this happens often, the result will not be reliable. ";
+    serr << "This is likely a (rare) numerical issue. Please, consider emailing the authors a working example of your code. ";
 
-        for( int j = 0; j < g._E; j++ )
-            cout << "x_" << j << " = " << X[j] << "; ";
-        cout << endl;
-        for( int j = 0; j < g._E; j++ )
-            cout << "cX_" << j << " = " << cX[j] << "; ";
-        cout << endl;
+    for( int j = 0; j < g._E; j++ )
+        serr << "x_" << j << " = " << X[j] << "; ";
+    for( int j = 0; j < g._E; j++ )
+        serr << "cX_" << j << " = " << cX[j] << "; ";
 
-        cout << "cPsi = " << cPsi << " ; cPPhi = " << cPPhi << endl;
-        cout << "-" << endl;
-    }
+    serr << "cPsi = " << cPsi << " ; cPPhi = " << cPPhi;
+    serr << ";" << endl;
 }
 
 template< class Generator >
@@ -155,8 +151,10 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         }
     }
 
+    stringstream serr;
+
     #pragma omp parallel for default(none) \
-        shared(cout,subgraph_table,mcs,generators,N,g,D,L,W,W_zero,PGP,cPGP,masses_sqr,nu,num_eps_terms,def_ref,IGtr) \
+        shared(serr,subgraph_table,mcs,generators,N,g,D,L,W,W_zero,PGP,cPGP,masses_sqr,nu,num_eps_terms,def_ref,IGtr) \
         firstprivate(La,LaInv,ldlt,X,Xinv,XinvSqr,d_pphi,dd_pphi,LPGPLT,cX,cXinv,cLa,luLa,cJacobian,luJac) \
         schedule(dynamic, 10000)
     for( uint64_t i = 0; i < N; i++ )
@@ -191,21 +189,24 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         if( def_ref == 0. || ( W_zero && num_eps_terms == 1 ) )
         {
-            double detCholeskyL = ldlt.matrixL().determinant();
+            //double detCholeskyL = ldlt.matrixL().determinant();
             double detCholeskyD = ldlt.vectorD().prod();
 
-            double psi = detCholeskyL * detCholeskyL * detCholeskyD * X.prod();
+            double psi = detCholeskyD * X.prod();
             
             //double R = IGtr * pow( psi_tr/psi, D/2. );
             double R = IGtr * pow( psi, -D/2. );
 
             if( !isfinite( R ) )
             {
-                infinite_value_warning( g, R, psi, 0., X, cX );
+                #pragma omp critical
+                {
+                    infinite_value_warning( i, serr, g, R, psi, 0., X, cX );
+                }
                 continue;
             }
 
-            // don't need to compute second Symanzik if W = 0!
+            // don't need to compute second Symanzik if W = 0
             if( W_zero && num_eps_terms == 1 )
             {
                 get<0>(mcs[0])[t].update( R );
@@ -222,7 +223,10 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
             if( !isfinite( R ) )
             {
-                infinite_value_warning( g, R, psi, pphi, X, cX );
+                #pragma omp critical
+                {
+                    infinite_value_warning( i, serr, g, R, psi, pxi, X, cX );
+                }
                 continue;
             }
 
@@ -230,7 +234,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
             if( num_eps_terms > 1 )
             {
-                double eps_fac = log(psi) - L * log(pxi);
+                double eps_fac = log( psi / pow(pxi, L) );
                 for( int j = 1; j < num_eps_terms; j++ )
                 {
                     R *= eps_fac / (double)j;
@@ -291,7 +295,10 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         if( !isfinite( real(cR) ) || !isfinite( imag(cR) ) )
         {
-            infinite_value_warning( g, cR, cPsi, cPPhi, X, cX );
+            #pragma omp critical
+            {
+                infinite_value_warning( i, serr, g, cR, cPPhi, cPXi, X, cX );
+            }
             continue;
         }
 
@@ -300,19 +307,25 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         if( num_eps_terms > 1 )
         {
-            complex<double> eps_fac = log(cPsi) - (double)L * log(cPXi);
+            complex<double> eps_fac = log( cPsi / pow(cPXi, L) );
             for( int j = 1; j < num_eps_terms; j++ )
             {
                 cR *= eps_fac / (double)j;
+
                 get<0>(mcs[j])[t].update( real(cR) );
                 get<1>(mcs[j])[t].update( imag(cR) );
             }
         }
     }
 
+    if( !serr.str().empty() )
+        cout << serr.str() << endl;
+
     vector< pair< stats, stats > > result( num_eps_terms );
     for( int j = 0; j < num_eps_terms; j++ )
+    {
         result[j] = make_pair( merge_stats_vector( get<0>(mcs[j]) ), merge_stats_vector( get<1>(mcs[j]) ) );
+    }
 
     return result;
 }
