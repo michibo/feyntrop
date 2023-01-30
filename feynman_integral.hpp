@@ -80,9 +80,10 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         nu[j] = c;
     }
 
-    MatrixXd PGP, PGP_abs;
-    get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
+    MatrixXd PGP;
+    MatrixXd PGP_abs;
     get_PGP_matrix( PGP_abs, g, scalarproducts_abs, C, contracted_subgraph_components_map );
+    get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
 
     MatrixXcd cPGP = PGP;
 
@@ -122,10 +123,10 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
     MatrixXcd cJacobian( g._E, g._E );
     //FullPivLU<MatrixXcd> luJac( g._E, g._E );
-    PartialPivLU<MatrixXcd> luJac( g._E );
+    PartialPivLU<MatrixXcd> luJac( g._E ); // Partial pivoting seems to be sufficient for Jacobian
 
     double def_ref = 0.;
-    if( deformation_lambda != 0 )
+    if( deformation_lambda != 0 && !( W_zero && num_eps_terms == 1 ) )
     {
         Xinv = VectorXd::Ones( g._E );
         XinvSqr = VectorXd::Ones( g._E );
@@ -161,6 +162,16 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     {
         int t = omp_get_thread_num();
 
+/* 
+        // Uncomment this if ctrl-c should be working while using feyntrop
+
+        if ( 0 == ( (i+1) & ((1ULL << 20) - 1) ) )
+        {
+            if (PyErr_CheckSignals() != 0)
+                throw pybind11::error_already_set();
+        }
+*/
+
         // generate the random sample from the tropicalized measure of the Feynman integral and the values of psi_tr and xi_tr
         double psi_tr, xi_tr;
         tie(psi_tr, xi_tr) = get_random_psi_xi_tropical_sample( X, g, subgraph_table, generators[t] );
@@ -189,7 +200,6 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         if( def_ref == 0. || ( W_zero && num_eps_terms == 1 ) )
         {
-            //double detCholeskyL = ldlt.matrixL().determinant();
             double detCholeskyD = ldlt.vectorD().prod();
 
             double psi = detCholeskyD * X.prod();

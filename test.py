@@ -2,12 +2,13 @@
 import feyntrop
 
 #edges = [((0,1),1), ((0,1),2)]
-edges = [((0,1),1), ((1,2),1), ((2,3),1), ((3,0),1)]
+#edges = [((0,1),1), ((1,2),1), ((2,3),1), ((3,0),1)]
+edges = [((0,1),1), ((1,2),1), ((2,0),1), ((3,0),1), ((3,1),1), ((3,2),1)]
 
 g = feyntrop.graph(edges)
 print(g)
 
-D = 6
+D = 4
 
 #pipj = [ [  5, -5 ],
 #         [ -5,  5 ] ]
@@ -24,13 +25,13 @@ pipj = [ [  0,  1,  1, -2  ],
 #         [ -2,  1,  1,  0  ], 
 #]
 
-masses_sqr = [ 0.0, 0.0, 0.0, 0.0 ]
+masses_sqr = [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
 
 lamb = 1
 
-N = 1000000
+N = 10**9
 
-res, Itr = feyntrop.integrate_graph( g, D, pipj, masses_sqr, 6, lamb, N )
+res, Itr = feyntrop.integrate_graph( g, D, pipj, masses_sqr, 1, lamb, N )
 
 def num_err_str( number_error ):
     number, error = number_error

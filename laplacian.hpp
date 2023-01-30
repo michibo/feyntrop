@@ -40,9 +40,9 @@ void get_reduced_weighted_laplacian(
 
         Field x = Xinv[j];
 
-        La(l,l) += x;
+        La(l,l) +=  x;
 
-        if( k == V-1 ) // delete last row
+        if( k == V-1 )
             continue;
 
         La(k,k) +=  x;
@@ -69,14 +69,14 @@ void get_PGP_matrix(
     int V = num_components;
     PGP.setZero( V-1, V-1 );
     
-    for( int i = 0; i < g._V; i++ )
+    for( int i = 0; i < V; i++ )
     {
-        for( int j = 0; j < g._V; j++ )
+        for( int j = 0; j < V; j++ )
         {
             int v = contracted_subgraph_components_map[i];
             int w = contracted_subgraph_components_map[j];
 
-            if( v == V-1 || w == V-1 )
+            if( v == V-1 || w == V-1  )
                 continue;
 
             PGP(v,w) += scalarproducts(i,j);
