@@ -7,7 +7,7 @@ s   = IndexedBase('s')
 eps = symbols('eps')
 
     ######
-    # MISC
+    # Misc 
     ######
 
 # un-nest a list
@@ -30,7 +30,7 @@ def get_Vext(pspt):
     return max(indices) + 2
 
     ################
-    # FORMATTING RES
+    # Formatting res
     ################
 
 # format epsilon terms into tuples with associated error
@@ -74,7 +74,7 @@ def eps_expansion(res, edges, D0):
     return terms . evalf(10)
 
     ##########################################
-    # INVERTING MANDELSTAMS TO SCALAR PRODUCTS
+    # Inverting Mandelstams to scalar products
     ##########################################
 
 def set_momenta(edges, pspt):
@@ -134,16 +134,10 @@ def set_momenta(edges, pspt):
 # trop_int is the value of the Feynman integral (without prefactor)
 # Itr is the normalization factor in the tropical measure
 def tropical_integration(graph, masses, mom_var, D0, eps_order, Lambda, N):
-
     print("Prefactor: " + str(prefactor(graph, D0, eps_order)) + ".")
-
     g = feyntrop.graph(graph)
-
     pi_pj = set_momenta(graph, mom_var)
-
     trop_int, Itr  = feyntrop.integrate_graph(g, D0, pi_pj, masses, eps_order, Lambda, N)
-
     print("")
     print_res(trop_int)
     return trop_int, Itr
-
