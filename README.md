@@ -36,5 +36,5 @@ Tutorial
 
 To run the tutorial, make sure to have [jupyter-notebook](//jupyter.org/) installed. Then call
 ```
-jupyter notebook tutorial.ipynb
+jupyter notebook tutorial_2L_3pt.ipynb
 ```
