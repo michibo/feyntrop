@@ -80,10 +80,9 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         nu[j] = c;
     }
 
-    MatrixXd PGP;
-    MatrixXd PGP_abs;
-    get_PGP_matrix( PGP_abs, g, scalarproducts_abs, C, contracted_subgraph_components_map );
+    MatrixXd PGP, PGP_abs;
     get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
+    get_PGP_matrix( PGP_abs, g, scalarproducts_abs, C, contracted_subgraph_components_map );
 
     MatrixXcd cPGP = PGP;
 
@@ -244,7 +243,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
             if( num_eps_terms > 1 )
             {
-                double eps_fac = log( psi / pow(pxi, L) );
+                double eps_fac = log(psi) - L * log(pxi);
                 for( int j = 1; j < num_eps_terms; j++ )
                 {
                     R *= eps_fac / (double)j;
@@ -307,7 +306,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         {
             #pragma omp critical
             {
-                infinite_value_warning( i, serr, g, cR, cPPhi, cPXi, X, cX );
+                infinite_value_warning( i, serr, g, cR, cPsi, cPXi, X, cX );
             }
             continue;
         }
@@ -317,7 +316,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         if( num_eps_terms > 1 )
         {
-            complex<double> eps_fac = log( cPsi / pow(cPXi, L) );
+            complex<double> eps_fac = log(cPsi) - (double)L * log(cPXi);
             for( int j = 1; j < num_eps_terms; j++ )
             {
                 cR *= eps_fac / (double)j;
@@ -333,9 +332,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
     vector< pair< stats, stats > > result( num_eps_terms );
     for( int j = 0; j < num_eps_terms; j++ )
-    {
         result[j] = make_pair( merge_stats_vector( get<0>(mcs[j]) ), merge_stats_vector( get<1>(mcs[j]) ) );
-    }
 
     return result;
 }
