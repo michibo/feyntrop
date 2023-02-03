@@ -6,7 +6,7 @@ from sympy import prod, gamma, series, symbols, zeros, IndexedBase
     # Misc 
     #=====
 
-# p_sqr[i] = scalar product = p_i^2 and s[i,j] = Mandelstam = (p_i+p_j)^2 are used in replacement rules
+# p_sqr[i] = p_i^2 and s[i,j] = (p_i+p_j)^2 are used in replacement rules
 # eps is used as an expansion parameter 
 p_sqr = IndexedBase('p_sqr')
 s = IndexedBase('s')
