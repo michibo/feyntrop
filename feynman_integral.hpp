@@ -137,7 +137,11 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         eval_pphi_polynomial_derivatives( d_pphi, dd_pphi, g, Xinv, XinvSqr, LaInv, LPGPLT );
 
-        def_ref = -M_PI/2. * deformation_lambda / ( d_pphi.sum() + masses_sqr.sum() );
+        double factor = M_PI/2. / ( d_pphi.sum() + masses_sqr.sum() );
+        //def_ref = -M_PI/2. * deformation_lambda / ( d_pphi.sum() + masses_sqr.sum() );
+        cout << "The actual lambda that was used before is (new lambda) = (previous lambda input) * " << factor << endl;
+        cout << "Rerunning the program with (new lambda) should give the same result as before" << endl;
+        def_ref = - deformation_lambda;
     }
     else
     {
