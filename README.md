@@ -31,6 +31,8 @@ To compile *feyntrop* call
 make
 ```
 
+If the compilation fails, check that the submodules (Eigen and pybind11) are loaded (see instructions above).
+
 Tutorial
 --------
 
