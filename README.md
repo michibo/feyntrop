@@ -1,6 +1,11 @@
 feyntrop
 ========
 
+**feyntrop** is a computer program to evaluate Feynman integrals. The core C++ integration code, written mainly by [Michael Borinsky](//michaelborinsky.com), is an update of the proof-of-concept implementation [tropical-feynman-quadrature](https://github.com/michibo/tropical-feynman-quadrature), which was published with the paper ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310). **feyntrop** can be used through a [python](//python.org) interface, written by Henrik Munch.
+
+If **feyntrop** is helpful in your research, please cite,
+[](//arxiv.org) as well as ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310).
+
 Download
 --------
 
@@ -31,10 +36,13 @@ To compile *feyntrop* call
 make
 ```
 
+If the compilation fails, check that the submodules (Eigen and pybind11) are loaded (see instructions above).
+
 Tutorial
 --------
 
-To run the tutorial, make sure to have [jupyter-notebook](//jupyter.org/) installed. Then call
+To run the tutorial in notebook form, you have to have [jupyter-notebook](//jupyter.org/) installed. Call
 ```
 jupyter notebook tutorial_2L_3pt.ipynb
 ```
+to open the tutorial notebook.
