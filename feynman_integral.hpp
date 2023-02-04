@@ -33,7 +33,6 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         const graph& g, 
         double D, 
         const Eigen::MatrixXd& scalarproducts, 
-        const Eigen::MatrixXd& scalarproducts_abs, 
         const Eigen::VectorXd& masses_sqr, 
         int num_eps_terms, 
         double deformation_lambda, 
@@ -80,9 +79,8 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         nu[j] = c;
     }
 
-    MatrixXd PGP, PGP_abs;
+    MatrixXd PGP;
     get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
-    get_PGP_matrix( PGP_abs, g, scalarproducts_abs, C, contracted_subgraph_components_map );
 
     MatrixXcd cPGP = PGP;
 
@@ -127,19 +125,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     double def_ref = 0.;
     if( deformation_lambda != 0 && !( W_zero && num_eps_terms == 1 ) )
     {
-        Xinv = VectorXd::Ones( g._E );
-        XinvSqr = VectorXd::Ones( g._E );
-
-        get_reduced_weighted_laplacian( La, g, Xinv );
-        ldlt.compute( La );
-        LaInv = ldlt.solve( MatrixXd::Identity( g._V-1, g._V-1 ) );
-        LPGPLT = LaInv * PGP_abs * LaInv.transpose();
-
-        eval_pphi_polynomial_derivatives( d_pphi, dd_pphi, g, Xinv, XinvSqr, LaInv, LPGPLT );
-
-        double factor = M_PI/2. / ( d_pphi.sum() + masses_sqr.sum() );
-        //def_ref = -M_PI/2. * deformation_lambda / ( d_pphi.sum() + masses_sqr.sum() );
-        def_ref = - deformation_lambda;
+        def_ref = -deformation_lambda;
     }
     else
     {

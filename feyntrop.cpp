@@ -99,7 +99,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     cout << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
     start = std::chrono::system_clock::now();
-    vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, scalarproducts_abs, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
+    vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
     end = std::chrono::system_clock::now();
 
     elapsed_seconds = end-start;
