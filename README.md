@@ -42,7 +42,7 @@ Tests
 -----
 
 To ensure that *feyntrop* has been built correctly, please run the file `/tests/test_suite.py`.
-It used *feyntrop* to compute examples between 1-2 loops and 2-4 points, and then compares against pre-computed values.
+It uses *feyntrop* to compute examples between 1-2 loops and 2-4 points, and then compares against pre-computed values.
 Ratios between newly computed and pre-computed coefficients in the epsilon expansion will be printed, which should all be close to 1.
 
 Tutorial
