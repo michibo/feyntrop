@@ -30,7 +30,7 @@ feyntrop.o : srcs/feyntrop.cpp
 
 depend: .depend
 
-.depend: $(SRCS)
+.depend : srcs/feyntrop.cpp
 	$(RM) ./.depend
 	$(CXX) $(CXXFLAGS) -MM $^>>./.depend;
 
