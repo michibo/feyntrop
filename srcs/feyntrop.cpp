@@ -92,7 +92,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     if(bGPproperty)
         cout << "Generalized permutahedron property: fulfilled." << endl;
     else
-        cout << "Generalized permutahedron property: NOT fulfilled. Integration may fail. Check the result by varying the number of sample points and by evaluating at multiple kinematic points close to the current one." << endl;
+        cout << "Generalized permutahedron property: NOT fulfilled. Integration may fail. Check the result by varying the number of sample points and by evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic)." << endl;
 
     cout << "(Effective) kinematic regime: ";
     if( bEuclidean )
