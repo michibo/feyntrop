@@ -53,6 +53,61 @@ void get_reduced_weighted_laplacian(
     }
 }
 
+void get_reduced_contracted_laplacian( 
+        Eigen::MatrixXd& La,
+        const graph& g, 
+        const edge_subgraph_type& contracted_subgraph,
+        int num_components,
+        const vector<int>& contracted_subgraph_components_map,
+        const Eigen::VectorXd& Xinv
+        )
+{
+    assert( contracted_subgraph_components_map.size() == g._V );
+
+    int E = g._E;
+    int V = num_components;
+    
+    assert( La.rows() == V-1 && La.cols() == V-1 );
+
+    La.setZero( V-1, V-1 );
+
+    for ( int j = 0; j < E; j++ )
+    {
+        if( contracted_subgraph[j] )
+            continue;
+
+        pair<int, int> edge;
+        int k,l;
+        double c;
+        tie(edge, c) = g._edges[j];
+        tie(k,l) = edge;
+
+        assert( k != l );
+        assert( k > l );
+
+        k = contracted_subgraph_components_map[k];
+        l = contracted_subgraph_components_map[l];
+
+        if( k == l )
+            continue;
+
+        if( k < l )
+            tie(k, l) = make_pair(l, k); 
+
+        double x = Xinv[j];
+
+        La(l,l) += x;
+
+        if( k == V-1 ) // delete last row
+            continue;
+
+        La(k,k) +=  x;
+        La(k,l) += -x;
+        // only lower triangular part of the laplacian matters for ldlt. => Fill only lower triangular part.
+    }
+}
+
+
 void get_PGP_matrix( 
         Eigen::MatrixXd& PGP,
         const graph& g, 

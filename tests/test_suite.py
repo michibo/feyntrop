@@ -38,7 +38,7 @@ def compare_w_file(res_1, example):
         is_close_re = is_close(re_1, re_2)
         is_close_im = is_close(im_1, im_2)
         print("\teps^" + str(i) + ": ["  + str(is_close_re) + "] + [" + str(is_close_im) + "] * i")
-    print("\n" + "_"*90 + "\n")
+    print("\n" + "_"*80 + "\n")
 
     #########
     # Tests #
@@ -98,7 +98,7 @@ def test_4():
     # Run tests #
     #############
 
-print("\n" + "="*35 + " Running test suite " + "="*35)
+print("\n" + "="*30 + " Running test suite " + "="*30)
 test_0()
 test_1()
 test_2()

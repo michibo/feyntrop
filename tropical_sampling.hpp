@@ -28,9 +28,9 @@ double omega( const graph& g, double D, int L, const edge_subgraph_type& subgrap
     assert( g.is_edge_subgraph(subgraph) );
 
     double m = 0.0;
-    for ( int j = 0; j < g._E; j++ )
+    for( int j = 0; j < g._E; j++ )
     {
-        if ( !subgraph[j] )
+        if( !subgraph[j] )
             continue;
 
         pair<int, int> edge;
@@ -41,6 +41,44 @@ double omega( const graph& g, double D, int L, const edge_subgraph_type& subgrap
     }
 
     return m - D/2.0 * L;
+}
+
+bool is_mass_momentum_spanning_subgraph(
+        const graph& g, 
+        const edge_subgraph_type& subgraph, 
+        const Eigen::MatrixXd& PGP,
+        const Eigen::VectorXd& masses_sqr,
+        const vector< Eigen::VectorXd >& Xs,
+        const vector< Eigen::VectorXd >& Xinvs,
+        const vector<int>& components_map,
+        int cV,
+        double pmsqr_ref,
+        Eigen::MatrixXd& La,
+        Eigen::LDLT< Eigen::MatrixXd >& ldlt
+        )
+{
+    assert( g.is_edge_subgraph(subgraph) );
+    assert( Xs.size() == Xinvs.size() );
+    assert( PGP.cols() == cV-1 && PGP.rows() == cV-1 );
+    assert( masses_sqr.size() == g._E );
+
+    La.resize( cV - 1, cV - 1 );
+
+    double sum = 0;
+    for( size_t i = 0; i < Xs.size(); i++ )
+    {
+        get_reduced_contracted_laplacian( La, g, subgraph, cV, components_map, Xinvs[i] );
+        ldlt.compute( La );
+
+        double pxi = - ( ldlt.solve( PGP ) ).trace();
+        for( int j = 0; j < g._E; j++ )
+            if( !subgraph[j] )
+                pxi += masses_sqr[j] * Xs[i][j];
+
+        sum += fabs(pxi);
+    }
+
+    return sum / pmsqr_ref < 1e-12;
 }
 
 template < class CutFunc >
@@ -97,13 +135,13 @@ double subgraph_Jr_sum(
 The following function (with the helper functions above) recursively generates a table of the auxillary J_r table as described in Definition 28 and Proposition 29 of arXiv:2008.12310 for the Feynman integral case (see also Section 7.2 of arXiv:2008.12310 )
 
 */
-tuple< J_vector, double, double, bool > generate_subgraph_table( 
+tuple< J_vector, double, double, bool, bool > generate_subgraph_table( 
         const graph& g, 
         double D, 
         const Eigen::MatrixXd& scalarproducts,
         const Eigen::VectorXd& masses_sqr,
         bool eps_expansion,
-        bool bMinkowski
+        bool bNonEuclidean
         )
 {
     assert( D > 0 );
@@ -141,6 +179,8 @@ tuple< J_vector, double, double, bool > generate_subgraph_table(
     edge_subgraph_type subgraph = g.empty_edge_subgraph();
     int cV = components( components_map, g, subgraph );
 
+    assert( g._V == cV );
+
     get_PGP_matrix( PGP, g, scalarproducts, cV, components_map );
     double pmsqr_ref = PGP.norm() + masses_sqr.norm();
 
@@ -153,6 +193,24 @@ tuple< J_vector, double, double, bool > generate_subgraph_table(
         throw domain_error(s.str());
     }
 
+
+    Eigen::MatrixXd La;
+    Eigen::LDLT< Eigen::MatrixXd > ldlt;
+
+    int n_tests = 100;
+    vector< Eigen::VectorXd > Xs( n_tests );
+    vector< Eigen::VectorXd > Xinvs( n_tests );
+    
+    if( bPhiTrCompute )
+    {
+        for( int i = 0; i < n_tests; i++ )
+        {
+            Xs[i] = 2 * Eigen::VectorXd::Ones( g._E ) + Eigen::VectorXd::Random( g._E );
+            Xinvs[i] = Xs[i].cwiseInverse();
+        }
+    }
+
+    bool bPseudoEuclidean = true;
     bool bGPprop = true;
 
     for( int n = 0; n <= g._E; n++ )
@@ -171,16 +229,17 @@ tuple< J_vector, double, double, bool > generate_subgraph_table(
             if( bPhiTrCompute )
             {
                 get_PGP_matrix( PGP, g, scalarproducts, cV, components_map );
+                assert( (( PGP - PGP.transpose() ) / pmsqr_ref).isZero() );
 
-                double msqrnorm = 0.;
-                for( int j = 0; j < g._E; j++ )
-                    if( !subgraph[j] )
-                        msqrnorm += masses_sqr[j]*masses_sqr[j];
-                
-                msqrnorm = sqrt( msqrnorm );
-                double pmsqr = PGP.norm() + msqrnorm;
+                if( cV == 2 )
+                {
+                    assert( PGP.cols() == 1 && PGP.rows() == 1 );
 
-                mm = pmsqr/pmsqr_ref < 1e-12;
+                    if( PGP(0,0) / pmsqr_ref >= - 1e-12 ) // We are not in the pseudo Euclidean regime if this is > 0.
+                        bPseudoEuclidean = false;
+                }
+
+                mm = is_mass_momentum_spanning_subgraph(g, subgraph, PGP, masses_sqr, Xs, Xinvs, components_map, cV, pmsqr_ref, La, ldlt);
                 assert( n != 0 || !mm );
             }
             else if( n == g._E )
@@ -219,7 +278,7 @@ tuple< J_vector, double, double, bool > generate_subgraph_table(
 
             // check if Phi/F's Newton polytope is a generalized permutahedron.
             // see: Theorem 12.1 of arXiv:1709.07504 on the condition being used here
-            if( bPhiTrCompute && bMinkowski && n >= 2 )
+            if( bPhiTrCompute && bNonEuclidean && n >= 2 )
             {
                 int z = mm ? L + 1 : L;
 
@@ -291,7 +350,7 @@ tuple< J_vector, double, double, bool > generate_subgraph_table(
 
     double IGtr = get<0>(subgraph_table[cplt_subgraph.data()]);
 
-    return make_tuple( move(subgraph_table), W, IGtr, bGPprop );
+    return make_tuple( move(subgraph_table), W, IGtr, bGPprop, bPseudoEuclidean );
 }
 
 /*

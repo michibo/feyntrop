@@ -30,6 +30,15 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
         throw domain_error(s.str());
     }
 
+    if( !scalarproducts.colwise().sum().isZero() )
+    {
+        stringstream s;
+        s << "Scalar product (P) matrix has to fulfill momentum conservation. That means all row and column sums need to be 0. The matrix \n";
+        s << scalarproducts << "\n";
+        s << "does not fulfill this requirement.";
+        throw domain_error(s.str());
+    }
+
     if( masses_sqr.size() != g._E )
     {
         stringstream s;
@@ -47,19 +56,16 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es( scalarproducts );
     Eigen::MatrixXd scalarproducts_abs = - es.eigenvectors() * es.eigenvalues().cwiseAbs().asDiagonal() * es.eigenvectors().inverse();
     
-    double deformation_lambda = 0.0;
-    if( !scalarproducts.isApprox( scalarproducts_abs ) ) // activate analytic continuation if scalarproducts is not negative-semi-definite
-    {
-        // cout << "Analytic continuation is activated! Please ensure that there are no IR singularities and that we are in a sufficiently generic momentum configuration. For instance, vanishing external particle masses (p_i * p_i = 0) might also cause problems as the generalized permutahedron property might become invalid. " << endl;
-        cout << "Analytic continuation: activated." << endl;
 
-        deformation_lambda = lambda;
-    }
+    bool bEuclidean = true;
+    if( !scalarproducts.isApprox( scalarproducts_abs ) ) // activate analytic continuation if scalarproducts is not negative-semi-definite
+        bEuclidean = false;
 
     J_vector subgraph_table;
 
     int W; // superficial degree of divergence w(G)
     double IGtr; // tropicalized Feynman integral I_G^tr
+    bool bPseudoEuclidean;
     bool bGPproperty;
 
     // time tracking
@@ -71,7 +77,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     // cout << "Started calculating Jr-table" << endl;
 
     start = std::chrono::system_clock::now();
-    tie(subgraph_table, W, IGtr, bGPproperty) = generate_subgraph_table( g, D, scalarproducts, masses_sqr, num_eps_terms > 1, deformation_lambda != 0.0 );
+    tie(subgraph_table, W, IGtr, bGPproperty, bPseudoEuclidean) = generate_subgraph_table( g, D, scalarproducts, masses_sqr, num_eps_terms > 1, !bEuclidean );
     end = std::chrono::system_clock::now();
 
     elapsed_seconds = end-start;
@@ -86,15 +92,34 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     if(bGPproperty)
         cout << "Generalized permutahedron property: fulfilled." << endl;
     else
-        cout << "Generalized permutahedron property: NOT fulfilled. Integration may fail." << endl;
+        cout << "Generalized permutahedron property: NOT fulfilled. Integration may fail. Check the result by varying the number of sample points and by evaluating at multiple kinematic points close to the current one." << endl;
 
+    cout << "(Effective) kinematic regime: ";
+    if( bEuclidean )
+        cout << "Euclidean";
+    else if( bPseudoEuclidean )
+        cout << "Pseudo-Euclidean";
+    else
+        cout << "Minkowski";
+    cout << endl;
+
+    if( bEuclidean )
+        assert( bPseudoEuclidean );
+
+    double deformation_lambda = 0.0;
+    if( !bPseudoEuclidean )
+    {
+        cout << "Analytic continuation: activated. Lambda = " << lambda << endl;
+
+        deformation_lambda = lambda;
+    }
 
     // Initialize multithreading
     int max_threads = omp_get_max_threads();
     omp_set_num_threads(max_threads);
 
     // Initialize random number generator
-    true_random::xoshiro256 gen( 0 );
+    true_random::xoshiro256 gen( 0 ); // Pick your favorite random seed.
 
     cout << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
