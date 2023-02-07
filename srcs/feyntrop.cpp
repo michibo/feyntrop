@@ -78,9 +78,9 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     start = std::chrono::system_clock::now();
     tie(subgraph_table, W, IGtr, bGPproperty, bPseudoEuclidean) = generate_subgraph_table( g, D, scalarproducts, masses_sqr, num_eps_terms > 1, !bEuclidean );
-    end = std::chrono::system_clock::now();
+    //end = std::chrono::system_clock::now();
 
-    elapsed_seconds = end-start;
+    //elapsed_seconds = end-start;
 
     // cout << "Finished calculating Jr-table in " << elapsed_seconds.count() << " seconds " << endl;
     // cout << "Using " << subgraph_table.size() * sizeof(J_vector::value_type) << " bytes of RAM " << endl;
@@ -123,7 +123,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     cout << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
-    start = std::chrono::system_clock::now();
+    //start = std::chrono::system_clock::now();
     vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
     end = std::chrono::system_clock::now();
 
