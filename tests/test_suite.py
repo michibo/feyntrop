@@ -4,9 +4,9 @@ path = os.path.abspath('..')
 sys.path.append(path)
 from py_feyntrop import *
 
-    #########
+    #========
     # Utils #
-    #########
+    #========
 
 # print name of topology 
 def print_ex(example):
@@ -40,18 +40,18 @@ def compare_w_file(res_1, example):
         print("\teps^" + str(i) + ": ["  + str(is_close_re) + "] + [" + str(is_close_im) + "] * i")
     print("\n" + "_"*80 + "\n")
 
-    #########
+    #========
     # Tests #
-    #########
+    #========
 
 def test_0():
     example = "1L_2pt"
     print_ex(example)
     graph = [((0,1), 1), ((0,1), 2)]
     momentum_vars = [(p_sqr[0], 3)]
-    masses_sqr = [0.2, 1.2]
+    masses_sqr = [(m_sqr[0], 0.2), (m_sqr[1], 1.2)]
     D0, eps_order, Lambda, N = 4, 5, 1, int(1e7)
-    res = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)[0]
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
     compare_w_file(res, example)
 
 def test_1():
@@ -59,9 +59,9 @@ def test_1():
     print_ex(example)
     graph = [((0, 1), 1), ((1, 2), 1), ((2, 0), 1)]
     momentum_vars = [(p_sqr[0], -4), (p_sqr[1], -5), (s[0,1], -13)]
-    masses_sqr = [0.2, 1.2, 2.2]
+    masses_sqr = [(m_sqr[0], 0.2), (m_sqr[1], 1.2), (m_sqr[2], 2.2)]
     D0, eps_order, Lambda, N = 4, 5, 1, int(1e7)
-    res = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)[0]
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
     compare_w_file(res, example)
 
 def test_2():
@@ -69,9 +69,9 @@ def test_2():
     print_ex(example)
     graph = [((0, 1), 1), ((1, 2), 1), ((2, 0), 1)]
     momentum_vars = [(p_sqr[0], 1), (p_sqr[1], 4), (s[0,1], 3)]
-    masses_sqr = [0.01, 0.5, 1]
+    masses_sqr = [(m_sqr[0], 0.01), (m_sqr[1], 0.5), (m_sqr[2], 1)]
     D0, eps_order, Lambda, N = 4, 5, 1, int(1e7)
-    res = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)[0]
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
     compare_w_file(res, example)
 
 def test_3():
@@ -79,9 +79,9 @@ def test_3():
     print_ex(example)
     graph  = [((0,2), 1), ((0,3), 1), ((1,2), 1), ((1,3), 1), ((2,3), 1)]
     momentum_vars  = [(p_sqr[0], 3)]
-    masses_sqr = [0.1, 0.2, 0.3, 0.4, 0.5]
+    masses_sqr = [(m_sqr[0], 0.1), (m_sqr[1], 0.2), (m_sqr[2], 0.3), (m_sqr[3], 0.4), (m_sqr[4], 0.5)]
     D0, eps_order, Lambda, N = 4, 4, 0.5, int(1e7)
-    res = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)[0]
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
     compare_w_file(res, example)
 
 def test_4():
@@ -89,14 +89,13 @@ def test_4():
     print_ex(example)
     graph = [((0,1), 1), ((0,4), 1), ((1,5), 1), ((5,4), 1), ((5,2), 1), ((4,3), 1), ((3,2), 1)]
     momentum_vars = [(p_sqr[0], 1.2), (p_sqr[1], 1.3), (p_sqr[2], 1.4), (s[0,1], 2.1), (s[0,2], 2.2), (s[1,2], 2.3)]
-    masses_sqr = [0] * len(graph)
     D0, eps_order, Lambda, N = 4, 5, 1, int(1e7)
-    res = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)[0]
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars)[0]
     compare_w_file(res, example)
 
-    #############
+    #============
     # Run tests #
-    #############
+    #============
 
 print("\n" + "="*30 + " Running test suite " + "="*30)
 test_0()
