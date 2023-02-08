@@ -10,7 +10,7 @@ Download
 --------
 
  
-To download *feyntrop* and the necessary submodules ([Eigen](//eigen.tuxfamily.org/) and [pybind11](//github.com/pybind/pybind11)) use the command
+To download **feyntrop** and the necessary submodules ([Eigen](//eigen.tuxfamily.org/) and [pybind11](//github.com/pybind/pybind11)) use the command
 
 ```
 git clone --recursive git@github.com:michibo/feyntrop.git
@@ -30,7 +30,7 @@ Compilation
 
 Make sure to have [python](//python.org) installed.
 
-To compile *feyntrop* call
+To compile **feyntrop** call
 
 ```
 make
@@ -41,8 +41,8 @@ If the compilation fails, check that the submodules (Eigen and pybind11) are loa
 Tests
 -----
 
-To ensure that *feyntrop* has been built correctly, please run the file `/tests/test_suite.py`.
-It uses *feyntrop* to compute examples between 1-2 loops and 2-4 points, and then compares against pre-computed values.
+To ensure that **feyntrop** has been built correctly, please run the file `/tests/test_suite.py`.
+It uses **feyntrop** to compute examples between 1-2 loops and 2-4 points, and then compares against pre-computed values.
 Ratios between newly computed and pre-computed coefficients in the epsilon expansion will be printed, which should all be close to 1.
 
 Tutorial
