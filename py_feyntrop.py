@@ -1,13 +1,15 @@
 import feyntrop
 from math import log10
 from sympy import prod, gamma, series, symbols, zeros, IndexedBase
+from sympy.tensor import get_indices
 
     #=====
     # Misc 
     #=====
 
-# p_sqr[i] = p_i^2 and s[i,j] = (p_i+p_j)^2 are used in replacement rules
+# m_sqr[i] = m_i^2, p_sqr[i] = p_i^2 and s[i,j] = (p_i+p_j)^2 are used in replacement rules
 # eps is used as an expansion parameter 
+m_sqr = IndexedBase('m_sqr')
 p_sqr = IndexedBase('p_sqr')
 s = IndexedBase('s')
 eps = symbols('eps')
@@ -30,6 +32,19 @@ def get_V_ext(momentum_vars):
     ]
     indices = flatten(indices)
     return max(indices) + 2
+
+# those masses not specified in masses_sqr are set to zero
+def masses_sqr_zero(masses_sqr, graph):
+    E = len(graph)
+    n = len(masses_sqr)
+    m_indices = []
+    for i in range(n):
+        msqr = masses_sqr[i][0]
+        m_indices . append(list( get_indices(msqr)[0] ))
+    m_indices = flatten(m_indices)
+    g_indices = list(range(E))
+    complement = list(set(g_indices) - set(m_indices))
+    return [(m_sqr[i], 0) for i in complement]
 
     #==================
     # Formatting result
@@ -162,10 +177,20 @@ def pi_pj(graph, momentum_vars):
 
 # trop_int is the value of the Feynman integral (without prefactor!)
 # Itr is the normalization factor in the tropical measure
-def tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N):
-    print("Prefactor: " + str(prefactor(graph, D0, eps_order)) + ".")
+# if no list of masses is given, all are assumed zero
+# if a list of masses *is* given, but some masses are missing, these are assumed zero
+def tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr = None):
+    #
+    E = len(graph)
+    if masses_sqr == None:
+        masses_sqr = [(m_sqr[e], 0) for e in range(E)] # m_e^2 = 0 if no list is given
+    masses_sqr_rest = masses_sqr_zero(masses_sqr, graph) # insert zeros for missing masses if != None
+    masses_sqr = masses_sqr + masses_sqr_rest
+    masses_sqr = [m_sqr[e] . subs(masses_sqr) for e in range(E)]
+    #
     g = feyntrop.graph(graph)
     pipj = pi_pj(graph, momentum_vars)
+    print("Prefactor: " + str(prefactor(graph, D0, eps_order)) + ".")
     trop_res, Itr  = feyntrop.integrate_graph(g, D0, pipj, masses_sqr, eps_order, Lambda, N)
     print("")
     print_res(trop_res)
