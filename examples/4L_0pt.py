@@ -16,11 +16,12 @@ graph = [((0,1), 1), ((1,2), 1), ((2,0), 1), ((0,5), 1), ((1,4), 1), ((2,3), 1),
 # electron mass squared
 me = 1
 
-# squared momentum 
+# this makes all entries in the scalar product matrix P^{u,v} = p_u \cdot p_v = 0 (cf. eq. 4 of the paper),
+# as is the case for a vaccuum graph
 momentum_vars = [(p_sqr[0], 0)]
 
-# internal masses
-masses_sqr = [me, me, me, 0, 0, 0, me, me, me]
+# non-zero internal masses (indices of m_sqr correspond to graph)
+masses_sqr = [(m_sqr[0], me), (m_sqr[1], me), (m_sqr[2], me), (m_sqr[6], me), (m_sqr[7], me), (m_sqr[8], me)]
 
 # D = D0 - 2*eps dimensions
 D0 = 4
@@ -35,7 +36,7 @@ Lambda = 0
 N = int(1e8)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
 
 # epsilon expansion with prefactor
 expansion = eps_expansion(trop_res, graph, D0)

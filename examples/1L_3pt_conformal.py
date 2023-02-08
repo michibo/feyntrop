@@ -15,8 +15,7 @@ graph = [((0,1), 1/2), ((1,2), 1/2), ((2,0), 1/2)]
 # squared momenta
 momentum_vars = [(p_sqr[0], -2), (p_sqr[1], -3), (s[0,1] , -5)]
 
-# internal masses
-masses_sqr = [0] * len(graph)
+# no need to specify masses since they are 0
 
 # D = D0 - 2*eps dimensions
 D0 = 2
@@ -31,4 +30,4 @@ Lambda = 0
 N = int(1e8)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars)

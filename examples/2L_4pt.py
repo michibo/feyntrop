@@ -27,8 +27,8 @@ U = 2*M + 2*m - S - T
 # squared momenta and Mandelstam variables
 momentum_vars = [(p_sqr[0], M), (p_sqr[1], m), (p_sqr[2], m), (s[0,1], S), (s[1,2], T), (s[0,2], U)]
 
-# internal masses
-masses_sqr = [0, M, m, m, 0, M, 0]
+# non-zero internal masses (indices of m_sqr correspond to graph)
+masses_sqr = [(m_sqr[1], M), (m_sqr[2], m), (m_sqr[3], m), (m_sqr[5], M)]
 
 # D = D0 - 2*eps dimensions
 D0 = 6
@@ -40,10 +40,10 @@ eps_order = 5
 Lambda = 1.29
 
 # number of sampling points
-N = int(1e8)
+N = int(1e7)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
 
 # epsilon expansion with prefactor
 expansion = eps_expansion(trop_res, graph, D0)

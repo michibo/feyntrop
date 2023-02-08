@@ -16,8 +16,9 @@ graph = [((0,6), 1), ((0,5), 1), ((5,6), 1), ((6,4), 1), ((5,3), 1), ((5,4), 1),
 # squared momentum 
 momentum_vars = [(p_sqr[0], 100)]
 
-# internal masses
-masses_sqr = [i for i in range(1,12)]
+# non-zero internal masses (indices of m_sqr correspond to graph)
+masses_sqr = [(m_sqr[e], e+1) for e in range(len(graph))]
+print(masses_sqr)
 
 # D = D0 - 2*eps dimensions
 D0 = 3
@@ -29,10 +30,10 @@ eps_order = 11
 Lambda = 0.02
 
 # number of sampling points
-N = int(1e8)
+N = int(1e7)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(graph, masses_sqr, momentum_vars, D0, eps_order, Lambda, N)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
 
 # expansion of gamma functions to 11th order is slow in python, please try e.g. mathematica instead
 # eps_expansion(trop_res, graph, D0)
