@@ -11,55 +11,14 @@ Copyright (c) 2020-2023   Michael Borinsky
 
 #include "graph.hpp"
 
-template< class Field>
-void get_reduced_weighted_laplacian( 
-        Eigen::Matrix<Field, Eigen::Dynamic, Eigen::Dynamic>& La,
-        const graph& g, 
-        const Eigen::Matrix<Field, Eigen::Dynamic, 1>& Xinv
-        )
-{
-    assert( Xinv.size() == g._E );
-
-    int E = g._E;
-    int V = g._V;
-    
-    assert( La.rows() == V-1 && La.cols() == V-1 );
-
-    La.setZero( V-1, V-1 );
-
-    for ( int j = 0; j < E; j++ )
-    {
-        pair<int, int> edge;
-        int k,l;
-        double c;
-        tie(edge, c) = g._edges[j];
-        tie(k,l) = edge;
-
-        assert( k != l );
-        assert( k > l );
-
-        Field x = Xinv[j];
-
-        La(l,l) +=  x;
-
-        if( k == V-1 ) // delete last row
-            continue;
-
-        La(k,k) +=  x;
-        La(k,l) += -x;
-        // only lower triangular part of the laplacian matters for ldlt module. 
-        // => Fill only lower triangular part.
-        // For the use with a complex Laplacian, we need to fill also the other part!
-    }
-}
-
+template< class Field >
 void get_reduced_contracted_laplacian( 
-        Eigen::MatrixXd& La,
+        Eigen::Matrix<Field, Eigen::Dynamic, Eigen::Dynamic>& La,
         const graph& g, 
         const edge_subgraph_type& contracted_subgraph,
         int num_components,
         const vector<int>& contracted_subgraph_components_map,
-        const Eigen::VectorXd& Xinv
+        const Eigen::Matrix<Field, Eigen::Dynamic, 1>& Xinv
         )
 {
     assert( contracted_subgraph_components_map.size() == g._V );
@@ -94,7 +53,7 @@ void get_reduced_contracted_laplacian(
         if( k < l )
             tie(k, l) = make_pair(l, k); 
 
-        double x = Xinv[j];
+        Field x = Xinv[j];
 
         La(l,l) += x;
 
@@ -144,32 +103,44 @@ void eval_pphi_polynomial_derivatives(
         Eigen::VectorXd& d_pphi,
         Eigen::MatrixXd& dd_pphi,
         const graph& g, 
+        const edge_subgraph_type& contracted_subgraph,
         const Eigen::VectorXd& Xinv,
         const Eigen::VectorXd& XinvSqr,
         const Eigen::MatrixXd& LaInv,
-        const Eigen::MatrixXd& LPGPLT
+        const Eigen::MatrixXd& LPGPLT,
+        int num_components,
+        const vector<int>& contracted_subgraph_components_map
         )
 {
-    assert( Xinv.size() == g._E );
-    assert( XinvSqr.size() == g._E );
-    assert( d_pphi.size() == g._E );
-    assert( dd_pphi.cols() == g._E );
-    assert( dd_pphi.rows() == g._E );
-    assert( LaInv.rows() == g._V-1 );
-    assert( LaInv.cols() == g._V-1 );
-    assert( LPGPLT.rows() == g._V-1 );
-    assert( LPGPLT.cols() == g._V-1 );
-
-    int V = g._V;
+    int V = num_components;
     int E = g._E;
+
+    assert( Xinv.size() == E );
+    assert( XinvSqr.size() == E );
+    assert( d_pphi.size() == E );
+    assert( dd_pphi.cols() == E );
+    assert( dd_pphi.rows() == E );
+    assert( LaInv.rows() == V-1 );
+    assert( LaInv.cols() == V-1 );
+    assert( LPGPLT.rows() == V-1 );
+    assert( LPGPLT.cols() == V-1 );
 
     for( int a = 0; a < E; a++ )
     {
+        if( contracted_subgraph[a] )
+            continue;
+
         pair<int, int> edge_a;
         int ka,la,ca;
         tie(edge_a, ca) = g._edges[a];
         tie(ka,la) = edge_a;
         assert( ka > la );
+
+        ka = contracted_subgraph_components_map[ka];
+        la = contracted_subgraph_components_map[la];
+        
+        if( la > ka )
+            tie(la, ka) = make_pair(ka, la);
 
         double s, t;
             
@@ -192,11 +163,20 @@ void eval_pphi_polynomial_derivatives(
 
         for( int b = a + 1; b < E; b++ )
         {
+            if( contracted_subgraph[b] )
+                continue;
+
             pair<int, int> edge_b;
             int kb,lb,cb;
             tie(edge_b, cb) = g._edges[b];
             tie(kb,lb) = edge_b;
             assert( kb > lb );
+
+            kb = contracted_subgraph_components_map[kb];
+            lb = contracted_subgraph_components_map[lb];
+            
+            if( lb > kb )
+                tie(lb, kb) = make_pair(kb, lb);
 
             double s, t;
 

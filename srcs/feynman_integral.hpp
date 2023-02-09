@@ -80,9 +80,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     }
 
     MatrixXd PGP;
-    get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
-
-    MatrixXcd cPGP = PGP;
+    MatrixXcd cPGP;
 
     vector< true_random::xoshiro256 > generators; 
 
@@ -142,8 +140,8 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     stringstream serr;
 
     #pragma omp parallel for default(none) \
-        shared(serr,subgraph_table,mcs,generators,N,g,D,L,W,W_zero,PGP,cPGP,masses_sqr,nu,num_eps_terms,def_ref,IGtr) \
-        firstprivate(La,LaInv,ldlt,X,Xinv,XinvSqr,d_pphi,dd_pphi,LPGPLT,cX,cXinv,cLa,luLa,cJacobian,luJac) \
+        shared(serr,subgraph_table,mcs,generators,N,g,D,L,W,W_zero,masses_sqr,scalarproducts,C,nu,num_eps_terms,def_ref,IGtr,contracted_subgraph) \
+        firstprivate(La,LaInv,ldlt,X,Xinv,XinvSqr,d_pphi,dd_pphi,PGP,cPGP,LPGPLT,cX,cXinv,cLa,luLa,cJacobian,luJac,contracted_subgraph_components_map) \
         schedule(dynamic, 10000)
     for( uint64_t i = 0; i < N; i++ )
     {
@@ -181,7 +179,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         Xinv = X.cwiseInverse(); // coefficient wise inverse of X variables.
 
-        get_reduced_weighted_laplacian( La, g, Xinv );
+        get_reduced_contracted_laplacian( La, g, contracted_subgraph, C, contracted_subgraph_components_map, Xinv );
 
         ldlt.compute( La );
 
@@ -209,6 +207,9 @@ vector< pair< stats, stats > > feynman_integral_estimate(
                 get<0>(mcs[0])[t].update( R );
                 continue;
             }
+
+            get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
+
 
             double pphi = - ( ldlt.solve( PGP ) ).trace();
             double pxi  = pphi + masses_sqr.dot(X);
@@ -244,11 +245,14 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         // Analytic continuation starts here
 
+        get_PGP_matrix( PGP, g, scalarproducts, C, contracted_subgraph_components_map );
+        cPGP = PGP;
+
         LaInv = ldlt.solve( MatrixXd::Identity( g._V-1, g._V-1 ) );
         LPGPLT = LaInv * PGP * LaInv.transpose();
         XinvSqr = Xinv.array().square(); // coefficient wise square
 
-        eval_pphi_polynomial_derivatives( d_pphi, dd_pphi, g, Xinv, XinvSqr, LaInv, LPGPLT );
+        eval_pphi_polynomial_derivatives( d_pphi, dd_pphi, g, contracted_subgraph, Xinv, XinvSqr, LaInv, LPGPLT, C, contracted_subgraph_components_map );
 
         // pphi derivative gets modified to hold the deformation phase vector
         d_pphi += masses_sqr;
@@ -259,7 +263,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
         cXinv = cX.cwiseInverse();
 
-        get_reduced_weighted_laplacian( cLa, g, cXinv );
+        get_reduced_contracted_laplacian( cLa, g, contracted_subgraph, C, contracted_subgraph_components_map, cXinv );
 
         // The Laplacian is only half-filled. The upper half is filled in this loop
         for( int k = 0; k < g._V-1; k++ )
@@ -294,6 +298,17 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         {
             #pragma omp critical
             {
+                /*
+                serr << IGtr << endl;
+                serr << det_jac << endl;
+                serr << cJacobian << endl;
+                serr << complex<double>( cos( x_nu_exp ), sin( x_nu_exp ) ) << endl;
+                serr << d_pphi << endl;
+                serr << La << endl;
+                serr << cLa << endl;
+                serr << PGP << endl;
+                serr << cPGP << endl;
+                */
                 infinite_value_warning( i, serr, g, cR, cPsi, cPXi, X, cX );
             }
             continue;

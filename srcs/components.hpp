@@ -86,6 +86,9 @@ void bfs_discover_component( int v0, const graph& g, const edge_subgraph_type& s
     while( !stack.empty() );
 }
 
+// Computes number of connected components and 
+// fills the vector components_map that points v -> c
+// i.e. it maps a vertex to its associated component.
 int components( vector<int>& components_map, const graph& g, const edge_subgraph_type& subgraph )
 {
     assert( g.is_edge_subgraph( subgraph ) );

@@ -135,7 +135,7 @@ double subgraph_Jr_sum(
 The following function (with the helper functions above) recursively generates a table of the auxillary J_r table as described in Definition 28 and Proposition 29 of arXiv:2008.12310 for the Feynman integral case (see also Section 7.2 of arXiv:2008.12310 )
 
 */
-tuple< J_vector, double, double, bool, bool > generate_subgraph_table( 
+tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table( 
         const graph& g, 
         double D, 
         const Eigen::MatrixXd& scalarproducts,
@@ -153,6 +153,8 @@ tuple< J_vector, double, double, bool, bool > generate_subgraph_table(
         s << "E = " << g._E << " this graph is too large for this implementation!";
         throw domain_error(s.str());
     }
+
+    const double generic_threshold = 1e-5;
 
     J_vector subgraph_table( 1ULL << g._E );
 
@@ -210,6 +212,7 @@ tuple< J_vector, double, double, bool, bool > generate_subgraph_table(
         }
     }
 
+    bool bGeneric = true;
     bool bPseudoEuclidean = true;
     bool bGPprop = true;
 
@@ -237,6 +240,63 @@ tuple< J_vector, double, double, bool, bool > generate_subgraph_table(
 
                     if( PGP(0,0) / pmsqr_ref >= - 1e-12 ) // We are not in the pseudo Euclidean regime if this is > 0.
                         bPseudoEuclidean = false;
+                }
+
+                if( cV == 3 )
+                {
+                    if( PGP.isZero() )
+                        continue;
+
+                    double a = PGP(0,0);
+                    double b = PGP(1,1);
+                    double gamma = PGP(0,1);
+                    //double beta = - a - gamma;
+                    //double alpha = - b - gamma;
+                    double c = a + b + 2*gamma;
+
+                    for( int j = 0; j < g._E; j ++ )
+                    {
+                        if( subgraph[j] )
+                            continue;
+
+                        pair<int, int> edge;
+                        int k,l;
+                        double c;
+                        tie(edge, c) = g._edges[j];
+                        tie(k,l) = edge;
+
+                        assert( k != l );
+                        assert( k > l );
+
+                        int kc = components_map[k];
+                        int lc = components_map[l];
+
+                        if( kc == lc )
+                            continue;
+
+                        if( kc < lc )
+                            tie(kc, lc) = make_pair(lc, kc);
+
+                        if( kc == 1 && lc == 0 )
+                        {
+                            if( fabs( c - masses_sqr[j] )/pmsqr_ref < generic_threshold )
+                                bGeneric = false;
+                        }
+                        else if( kc == 2 && lc == 0 )
+                        {
+                            if( fabs( b - masses_sqr[j] )/pmsqr_ref < generic_threshold )
+                                bGeneric = false;
+                        }
+                        else if( kc == 2 && lc == 1 )
+                        {
+                            if( fabs( a - masses_sqr[j] )/pmsqr_ref < generic_threshold )
+                                bGeneric = false;
+                        }
+                        else
+                        {
+                            assert(false);
+                        }
+                    }
                 }
 
                 mm = is_mass_momentum_spanning_subgraph(g, subgraph, PGP, masses_sqr, Xs, Xinvs, components_map, cV, pmsqr_ref, La, ldlt);
@@ -350,7 +410,7 @@ tuple< J_vector, double, double, bool, bool > generate_subgraph_table(
 
     double IGtr = get<0>(subgraph_table[cplt_subgraph.data()]);
 
-    return make_tuple( move(subgraph_table), W, IGtr, bGPprop, bPseudoEuclidean );
+    return make_tuple( move(subgraph_table), W, IGtr, bGPprop, bPseudoEuclidean, bGeneric );
 }
 
 /*
