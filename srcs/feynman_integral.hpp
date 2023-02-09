@@ -176,19 +176,18 @@ vector< pair< stats, stats > > feynman_integral_estimate(
             XV[l] += X[j];
         }
 
-        double maxX;
-        int maxV = 0;
+        int minV = 0;
         for( int i = 1; i < g._V; i++ )
         {
-            if( XV[maxV] < XV[i] )
-                maxV = i;
+            if( XV[minV] > XV[i] )
+                minV = i;
         }
 
         for( int i = 0; i < g._V; i++ )
         {   
-            if( i < maxV )
+            if( i < minV )
                 contracted_subgraph_components_map[i] = i;
-            else if( i > maxV )
+            else if( i > minV )
                 contracted_subgraph_components_map[i] = i-1;
             else
                 contracted_subgraph_components_map[i] = g._V-1;

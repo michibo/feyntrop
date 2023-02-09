@@ -27,7 +27,7 @@ eps_order = 1
 Lambda = 0
 
 # number of sampling points
-N = int(1e8)
+N = int(1e9)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
 trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars)
