@@ -105,6 +105,8 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     VectorXd Xinv( g._E );
     VectorXd XinvSqr( g._E );
 
+    VectorXd XV( g._V );
+
     VectorXd d_pphi( g._E );
     MatrixXd dd_pphi( g._E, g._E );
 
@@ -141,7 +143,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
 
     #pragma omp parallel for default(none) \
         shared(serr,subgraph_table,mcs,generators,N,g,D,L,W,W_zero,masses_sqr,scalarproducts,C,nu,num_eps_terms,def_ref,IGtr,contracted_subgraph) \
-        firstprivate(La,LaInv,ldlt,X,Xinv,XinvSqr,d_pphi,dd_pphi,PGP,cPGP,LPGPLT,cX,cXinv,cLa,luLa,cJacobian,luJac,contracted_subgraph_components_map) \
+        firstprivate(La,LaInv,ldlt,X,Xinv,XinvSqr,d_pphi,dd_pphi,PGP,cPGP,LPGPLT,cX,cXinv,cLa,luLa,cJacobian,luJac,contracted_subgraph_components_map,XV) \
         schedule(dynamic, 10000)
     for( uint64_t i = 0; i < N; i++ )
     {
@@ -160,6 +162,37 @@ vector< pair< stats, stats > > feynman_integral_estimate(
         // generate the random sample from the tropicalized measure of the Feynman integral and the values of psi_tr and xi_tr
         double psi_tr, xi_tr;
         tie(psi_tr, xi_tr) = get_random_psi_xi_tropical_sample( X, g, subgraph_table, generators[t] );
+
+        XV.setZero( g._V );
+        for( int j = 0; j < g._E; j++ )
+        {
+            pair<int, int> edge;
+            double c;
+            int k, l;
+            tie(edge, c) = g._edges[j];
+            tie(k, l) = edge;
+            
+            XV[k] += X[j];
+            XV[l] += X[j];
+        }
+
+        double maxX;
+        int maxV = 0;
+        for( int i = 1; i < g._V; i++ )
+        {
+            if( XV[maxV] < XV[i] )
+                maxV = i;
+        }
+
+        for( int i = 0; i < g._V; i++ )
+        {   
+            if( i < maxV )
+                contracted_subgraph_components_map[i] = i;
+            else if( i > maxV )
+                contracted_subgraph_components_map[i] = i-1;
+            else
+                contracted_subgraph_components_map[i] = g._V-1;
+        }
 
         /// !
 

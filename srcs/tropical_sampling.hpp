@@ -242,11 +242,8 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                         bPseudoEuclidean = false;
                 }
 
-                if( cV == 3 )
+                if( cV == 3 && !PGP.isZero())
                 {
-                    if( PGP.isZero() )
-                        continue;
-
                     double a = PGP(0,0);
                     double b = PGP(1,1);
                     double gamma = PGP(0,1);
