@@ -93,6 +93,27 @@ def test_4():
     res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars)[0]
     compare_w_file(res, example)
 
+def test_5():
+    example = "2L_3pt_tutorial"
+    print_ex(example)
+    graph = [((0,1), 1), ((1,3), 1), ((3,2), 1), ((2,0), 1), ((0,3), 1)]
+    momentum_vars = [(p_sqr[0], 0), (p_sqr[1], 0), (s[0,1], 1)]
+    masses_sqr = [(m_sqr[0], 0.2), (m_sqr[1], 0.2), (m_sqr[2], 0.2), (m_sqr[3], 0.2), (m_sqr[4], 0.2)]
+    D0, eps_order, Lambda, N = 2, 5, 7.6, int(1e7)
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
+    compare_w_file(res, example)
+
+def test_6():
+    example = "2L_5pt_box_pent"
+    print_ex(example)
+    graph = [((0,1), 1), ((1,2), 1), ((2,6), 1), ((6,3), 1), ((3,4), 1), ((4,5), 1), ((5,0), 1), ((5,6), 1)]
+    m = 1/2
+    momentum_vars = [(p_sqr[0], 0), (p_sqr[1], m), (p_sqr[2], m), (p_sqr[3], m), (s[0,1], 2.2), (s[0,2], 2.3), (s[0,3], 2.4), (s[1,2], 2.5), (s[1,3], 2.6), (s[2,3], 2.7)]
+    masses_sqr = [(m_sqr[1], m), (m_sqr[3], m), (m_sqr[5], m), (m_sqr[7], m)]
+    D0, eps_order, Lambda, N = 6, 5, 0.28, int(1e7)
+    res = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)[0]
+    compare_w_file(res, example)
+
     #============
     # Run tests #
     #============
@@ -103,3 +124,5 @@ test_1()
 test_2()
 test_3()
 test_4()
+test_5()
+test_6()
