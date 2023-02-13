@@ -251,6 +251,10 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                     //double alpha = - b - gamma;
                     double c = a + b + 2*gamma;
 
+                    double A = 0;
+                    double B = 0;
+                    double C = 0;
+
                     for( int j = 0; j < g._E; j ++ )
                     {
                         if( subgraph[j] )
@@ -271,29 +275,27 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                         if( kc == lc )
                             continue;
 
-                        if( kc < lc )
-                            tie(kc, lc) = make_pair(lc, kc);
+                        if( kc == 0 || lc == 0 )
+                            A += masses_sqr[j];
 
-                        if( kc == 1 && lc == 0 )
-                        {
-                            if( fabs( c - masses_sqr[j] )/pmsqr_ref < generic_threshold )
-                                bGeneric = false;
-                        }
-                        else if( kc == 2 && lc == 0 )
-                        {
-                            if( fabs( b - masses_sqr[j] )/pmsqr_ref < generic_threshold )
-                                bGeneric = false;
-                        }
-                        else if( kc == 2 && lc == 1 )
-                        {
-                            if( fabs( a - masses_sqr[j] )/pmsqr_ref < generic_threshold )
-                                bGeneric = false;
-                        }
-                        else
-                        {
-                            assert(false);
-                        }
+                        if( kc == 1 || lc == 1 )
+                            B += masses_sqr[j];
+
+                        if( kc == 2 || lc == 2 )
+                            C += masses_sqr[j];
                     }
+
+                    //cout << a << " " << b << " " << c << endl;
+                    //cout << A << " " << B << " " << C << endl;
+
+                    if( fabs(a - A) / pmsqr_ref > 10e-12 && fabs(b - B) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+                        bGeneric = false;
+
+                    if( fabs(b - B) / pmsqr_ref > 10e-12 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+                        bGeneric = false;
+
+                    if( fabs(c - C) / pmsqr_ref > 10e-12 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(b - B) / pmsqr_ref < generic_threshold )
+                        bGeneric = false;
                 }
 
                 mm = is_mass_momentum_spanning_subgraph(g, subgraph, PGP, masses_sqr, Xs, Xinvs, components_map, cV, pmsqr_ref, La, ldlt);
@@ -374,7 +376,7 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                         if( zA + zB > z + zAB )
                         {
                             bGPprop = false;
-
+/*
                             stringstream s;
                             s << "Warning: the graph " << g << " Phi/F polynomial's Newton polytope is NOT a generalized permutahedron. With the subgraphs ";
                             s << ", A: ";
@@ -395,6 +397,7 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                                     s << j << " ";
                             s << ". We get the violation of the property z(A) + z(B) <= z(AnB) + z(AuB).";
                             cout << s.str() << endl;
+*/
                         }
                     }
                 }
