@@ -11,24 +11,16 @@ sys.path.append(path)
 from py_feyntrop import *
 
 # Feynman diagram
-graph = [((0,1), 1), ((0,4), 1), ((1,5), 1), ((5,2), 1), ((5,3), 1), ((4,3), 1), ((4,2), 1)]
+# MM and mm stand for the muon and electron masses respectively
+edges = [((0,1), 1, '0'), ((0,4), 1, 'MM'), ((1,5), 1, 'mm'), ((5,2), 1, 'mm'), 
+         ((5,3), 1, '0'), ((4,3), 1, 'MM'), ((4,2), 1, '0')]
 
-# muon mass squared
-M = 1
+# replace scalar products in terms of chosen kinematic variables
+replacement_rules = [(sp[0,0], 'MM'), (sp[1,1], 'mm'), (sp[2,2], 'mm'), (sp[0,1], '(s-MM-mm)/2'),
+                     (sp[1,2], '(t-2*mm)/2'), (sp[0,2], '(MM+mm-s-t)/2')]
 
-# electron mass squared
-m = M/200
-
-# Mandelstam variables similar to section 4.1.2 of [1806.08241]
-S = -1/7
-T = -1/3
-U = 2*M + 2*m - S - T 
-
-# squared momenta and Mandelstam variables
-momentum_vars = [(p_sqr[0], M), (p_sqr[1], m), (p_sqr[2], m), (s[0,1], S), (s[1,2], T), (s[0,2], U)]
-
-# non-zero internal masses (indices of m_sqr correspond to graph)
-masses_sqr = [(m_sqr[1], M), (m_sqr[2], m), (m_sqr[3], m), (m_sqr[5], M)]
+# numerically evaluate at this point
+phase_space_point = [('MM', 1), ('mm', 1/200), ('s', -1/7), ('t', -1/3)]
 
 # D = D0 - 2*eps dimensions
 D0 = 6
@@ -43,8 +35,8 @@ Lambda = 1.29
 N = int(1e7)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, phase_space_point)
 
 # epsilon expansion with prefactor
-expansion = eps_expansion(trop_res, graph, D0)
+expansion = eps_expansion(trop_res, edges, D0)
 print("\n" + str(expansion) + "\n")

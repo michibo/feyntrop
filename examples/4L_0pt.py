@@ -11,17 +11,16 @@ sys.path.append(path)
 from py_feyntrop import *
 
 # Feynman diagram
-graph = [((0,1), 1), ((1,2), 1), ((2,0), 1), ((0,5), 1), ((1,4), 1), ((2,3), 1), ((3,4), 1), ((4,5), 1), ((5,3), 1)]
+# 'mm' is some fermion mass
+edges = [((0,1), 1, 'mm'), ((1,2), 1, 'mm'), ((2,0), 1, 'mm'), 
+         ((0,5), 1, '0' ), ((1,4), 1, '0' ), ((2,3), 1, '0' ), 
+         ((3,4), 1, 'mm'), ((4,5), 1, 'mm'), ((5,3), 1, 'mm')]
 
-# electron mass squared
-me = 1
+# no replacement rules for momenta, since this is a vacuum graph
+replacement_rules = []
 
-# this makes all entries in the scalar product matrix P^{u,v} = p_u \cdot p_v = 0 (cf. eq. 4 of the paper),
-# as is the case for a vaccuum graph
-momentum_vars = [(p_sqr[0], 0)]
-
-# non-zero internal masses (indices of m_sqr correspond to graph)
-masses_sqr = [(m_sqr[0], me), (m_sqr[1], me), (m_sqr[2], me), (m_sqr[6], me), (m_sqr[7], me), (m_sqr[8], me)]
+# numerically evaluate at this point
+phase_space_point = [('mm', 1)]
 
 # D = D0 - 2*eps dimensions
 D0 = 4
@@ -36,9 +35,9 @@ Lambda = 0
 N = int(1e8)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, phase_space_point)
 
 # epsilon expansion with prefactor
-expansion = eps_expansion(trop_res, graph, D0)
+expansion = eps_expansion(trop_res, edges, D0)
 print("\n" + str(expansion) + "\n")
 

@@ -4,18 +4,20 @@
     # ================
 
 # import feyntrop from parent directory
-import os; import sys
+import os
+import sys
 path = os.path.abspath('..')
 sys.path.append(path)
 from py_feyntrop import *
 
-# Feynman diagram with half edge weights
-graph = [((0,1), 1/2), ((1,2), 1/2), ((2,0), 1/2)]
+# Feynman diagram with half edge weights and massless internal lines
+edges = [((0,1), 1/2, '0'), ((1,2), 1/2, '0'), ((2,0), 1/2, '0')]
 
-# squared momenta
-momentum_vars = [(p_sqr[0], -2), (p_sqr[1], -3), (s[0,1] , -5)]
+# replace scalar products in terms of chosen kinematic variables. Here s = (p0 + p1)^2
+replacement_rules = [(sp[0,0], 'pp0'), (sp[1,1], 'pp1'), (sp[0,1], '(s-pp0-pp1)/2')]
 
-# no need to specify masses since they are 0
+# numerically evaluate at this point
+phase_space_point = [('pp0', -2), ('pp1', -3), ('s', -5)]
 
 # D = D0 - 2*eps dimensions
 D0 = 2
@@ -27,7 +29,7 @@ eps_order = 1
 Lambda = 0
 
 # number of sampling points
-N = int(1e9)
+N = int(1e8)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, phase_space_point)

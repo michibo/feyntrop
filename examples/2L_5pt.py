@@ -11,16 +11,18 @@ sys.path.append(path)
 from py_feyntrop import *
 
 # Feynman diagram
-graph = [((0,1), 1), ((1,2), 1), ((2,6), 1), ((6,3), 1), ((3,4), 1), ((4,5), 1), ((5,0), 1), ((5,6), 1)]
+# 'mm' stands for some quark mass squared
+edges = [((0,1), 1, '0'), ((1,2), 1, 'mm'), ((2,6), 1, '0'), ((6,3), 1, 'mm'), 
+         ((3,4), 1, '0'), ((4,5), 1, 'mm'), ((5,0), 1, '0'), ((5,6), 1, 'mm')]
 
-# some quark mass squared
-m = 1/2
+# replace scalar products in terms of chosen kinematic variables s_ij = (p_i + p_j)^2
+replacement_rules = [(sp[0,0], '0'), (sp[1,1], 'mm'), (sp[2,2], 'mm'), (sp[3,3], 'mm'),
+                     (sp[0,1], '(s01-mm)/2'), (sp[0,2], '(s02-mm)/2'), (sp[0,3], '(s03-mm)/2'),
+                     (sp[1,2], '(s12-2*mm)/2'), (sp[1,3], '(s13-2*mm)/2'), (sp[2,3], '(s23-2*mm)/2')]
 
-# squared momenta and Mandelstam variables
-momentum_vars = [(p_sqr[0], 0), (p_sqr[1], m), (p_sqr[2], m), (p_sqr[3], m), (s[0,1], 2.2), (s[0,2], 2.3), (s[0,3], 2.4), (s[1,2], 2.5), (s[1,3], 2.6), (s[2,3], 2.7)]
-
-# non-zero internal masses (indices of m_sqr correspond to graph)
-masses_sqr = [(m_sqr[1], m), (m_sqr[3], m), (m_sqr[5], m), (m_sqr[7], m)]
+# numerically evaluate at this point
+phase_space_point = [('mm',  1/2), ('s01', 2.2), ('s02', 2.3), ('s02', 2.3), 
+                     ('s03', 2.4), ('s12', 2.5), ('s13', 2.6), ('s23', 2.7)]
 
 # D = D0 - 2*eps dimensions
 D0 = 6
@@ -35,8 +37,8 @@ Lambda = 0.28
 N = int(1e7)
 
 # epsilon expansion without prefactor (trop_res) and normalization of tropical measure (Itr)
-trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, graph, momentum_vars, masses_sqr)
+trop_res, Itr = tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, phase_space_point)
 
 # epsilon expansion with prefactor
-expansion = eps_expansion(trop_res, graph, D0)
+expansion = eps_expansion(trop_res, edges, D0)
 print("\n" + str(expansion) + "\n")
