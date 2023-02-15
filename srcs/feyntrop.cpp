@@ -128,25 +128,33 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     }
 
     if( !bGeneric && !bEuclidean && W > 0 )
-    {
-        cout << "Warning: As the integral has positive superficial degree of divergence, we need control over the F polynomials' Newton polytope. The kinematic point is non-Euclidean and (very) exceptional. The integration might fail or be unstable. Check the result by varying the number of sample points and by evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic). The integration should also work for larger D0." << endl;
+    {   
+        //As the integral has positive superficial degree of divergence, we need control over the F polynomials' Newton polytope. 
+        cout << "Warning: Kinematics are non-Euclidean and (very) exceptional. Detailed info on the N[F] polytope is needed. The integration might fail or be unstable. Check the result by 1) varying the number of sample points 2) evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic) 3) increasing the spacetime dimension D0." << endl;
         if( bGPproperty )
-            cout << "The generalized permutahedron property still seems fulfilled. This is a good sign that the integration might succeed anyway." << endl;
+            cout << "The generalized permutahedron property seems fulfilled. This is a good sign that the integration might succeed anyway." << endl;
         else
-            cout << "Generalized permutahedron property does NOT seem fulfilled. It is likely that there are singular points in the integration domain that impeed convergence." << endl;
+            cout << "The generalized permutahedron property does NOT seem fulfilled. Likely, there are singular points in the integration domain that impeed convergence." << endl;
     }
     else
     {
         if( bGPproperty )
         {
-            cout << "Generalized permutahedron property: fulfilled." << endl;
+            cout << "Generalized permutahedron property seems fulfilled." << endl;
         }
         else
         {
             if( W > 0 )
-                cout << "Warning: Generalized permutahedron property: NOT fulfilled. Integration may fail. Check the result by varying the number of sample points and by evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic)." << endl;
+            {
+                stringstream s;
+                s << "The momenta seem Euclidean or generic, but the generalized permutahedron property seems not fulfilled. This is likely a bug and the result of the integration shouldn't be trusted. Please contact the developers and send them the following data such that they can fix this bug. Thank you!" << endl;
+                s << g << endl;
+                s << masses_sqr << endl;
+                s << scalarproducts << endl;
+                throw domain_error(s.str());
+            }
             else
-                cout << "Generalized permutahedron property: NOT fulfilled. However, the integration should work fine as the F polynomial is not relevant for the given dimension and edge weights." << endl;
+                cout << "Generalized permutahedron property seems NOT fulfilled. However, the integration should work fine as the N[F] polytope is not relevant for the given dimension and edge weights." << endl;
         }
     }
 
