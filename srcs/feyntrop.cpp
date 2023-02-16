@@ -92,11 +92,11 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     cout << "(Effective) kinematic regime: ";
     if( bEuclidean )
-        cout << "Euclidean.";
+        cout << "Euclidean";
     else if( bPseudoEuclidean )
-        cout << "Pseudo-Euclidean.";
+        cout << "Pseudo-Euclidean";
     else
-        cout << "Minkowski.";
+        cout << "Minkowski";
 
     if( bGeneric )
         cout << " (generic).";
