@@ -92,16 +92,16 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     cout << "(Effective) kinematic regime: ";
     if( bEuclidean )
-        cout << "Euclidean";
+        cout << "Euclidean.";
     else if( bPseudoEuclidean )
-        cout << "Pseudo-Euclidean";
+        cout << "Pseudo-Euclidean.";
     else
-        cout << "Minkowski";
+        cout << "Minkowski.";
 
     if( bGeneric )
-        cout << " (generic)";
+        cout << " (generic).";
     else
-        cout << " (exceptional)";
+        cout << " (exceptional).";
     cout << endl;
 
     if( bEuclidean )
@@ -161,7 +161,7 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     double deformation_lambda = 0.0;
     if( !bPseudoEuclidean )
     {
-        cout << "Analytic continuation: activated. Lambda = " << lambda << endl;
+        cout << "Analytic continuation: activated. Lambda = " << lambda << "." << endl;
 
         deformation_lambda = lambda;
     }
