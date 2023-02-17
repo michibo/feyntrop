@@ -41,8 +41,12 @@ If the compilation fails, check that the submodules (Eigen and pybind11) are loa
 Tests
 -----
 
-To ensure that **feyntrop** has been built correctly, please run the file `/tests/test_suite.py`.
-It uses **feyntrop** to compute examples between 1-2 loops and 2-5 points, and then compares against pre-computed values.
+To ensure that **feyntrop** has been built correctly, please run the file `/tests/test_suite.py`. That means, run
+```
+cd tests
+python test_suite.py
+```
+This python script uses **feyntrop** to compute examples between 1-2 loops and 2-5 points, and then compares against pre-computed values.
 Ratios between newly computed and pre-computed coefficients in the epsilon expansion will be printed, which should all be close to 1.
 
 Tutorial
