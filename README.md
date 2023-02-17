@@ -52,8 +52,8 @@ Ratios between newly computed and pre-computed coefficients in the epsilon expan
 Tutorial
 --------
 
-To run the tutorial in notebook form, you have to have [jupyter-notebook](//jupyter.org/) installed. Call
+To run the tutorial in notebook form, you have to have [jupyter-notebook](//jupyter.org/) installed. Run
 ```
 jupyter notebook tutorial_2L_3pt.ipynb
 ```
-to open the tutorial notebook.
+in the top directory of this repository to open the tutorial notebook.
