@@ -4,7 +4,7 @@ feyntrop
 **feyntrop** is a computer program to evaluate Feynman integrals. The core C++ integration code, written mainly by [Michael Borinsky](//michaelborinsky.com), is an update of the proof-of-concept implementation [tropical-feynman-quadrature](https://github.com/michibo/tropical-feynman-quadrature), which was published with the paper ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310). **feyntrop** can be used through a [python](//python.org) interface, written by Henrik Munch.
 
 If **feyntrop** is helpful in your research, please cite,
-[](//arxiv.org) as well as ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310).
+[M. Borinsky, H. J. Munch, F. Tellander: Tropical Feynman integration in the Minkowski regime](//arxiv.org) as well as [M. Borinsky: Tropical Monte Carlo quadrature for Feynman integrals arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
 Download
 --------
