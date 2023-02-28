@@ -13,14 +13,14 @@ Download
 To download **feyntrop** and the necessary submodules ([Eigen](//eigen.tuxfamily.org/) and [pybind11](//github.com/pybind/pybind11)) use the command
 
 ```
-git clone --recursive git@github.com:michibo/feyntrop.git
+git clone --recursive https://github.com/michibo/feyntrop.git
 cd feyntrop
 ```
 
 or 
 
 ```
-git clone git@github.com:michibo/feyntrop.git
+git clone https://github.com/michibo/feyntrop.git
 cd feyntrop
 git submodule update --init --recursive
 ```
