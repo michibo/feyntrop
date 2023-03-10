@@ -6,7 +6,7 @@ feyntrop
 If **feyntrop** is helpful in your research, please cite,
 [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime' arXiv:2302.08955](//arxiv.org/abs/2302.08955) as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals' arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
-The implementation internally uses [Eigen](http://eigen.tuxfamily.org), [python](//python.org), [pybind11](//github.com/pybind/pybind11)), OpenMP and the [xoshiro256+](http://prng.di.unimi.it/) random number generator.
+The implementation internally uses [Eigen](http://eigen.tuxfamily.org), [python](//python.org), [pybind11](//github.com/pybind/pybind11), OpenMP and the [xoshiro256+](http://prng.di.unimi.it/) random number generator.
 
 Download
 --------
