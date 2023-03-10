@@ -32,7 +32,7 @@ Compilation
 
 Make sure to have [python](//python.org) installed.
 
-To compile **feyntrop** call
+To (re)compile **feyntrop** call
 
 ```
 make clean && make
