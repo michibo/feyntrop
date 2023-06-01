@@ -238,7 +238,7 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                 {
                     assert( PGP.cols() == 1 && PGP.rows() == 1 );
 
-                    if( PGP(0,0) / pmsqr_ref >= - 1e-12 ) // We are not in the pseudo Euclidean regime if this is > 0.
+                    if( PGP(0,0) / pmsqr_ref >= 1e-12 ) // We are not in the pseudo Euclidean regime if this is > 0.
                         bPseudoEuclidean = false;
                 }
 
@@ -247,8 +247,6 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                     double a = PGP(0,0);
                     double b = PGP(1,1);
                     double gamma = PGP(0,1);
-                    //double beta = - a - gamma;
-                    //double alpha = - b - gamma;
                     double c = a + b + 2*gamma;
 
                     double A = 0;
@@ -285,16 +283,13 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                             C += masses_sqr[j];
                     }
 
-                    //cout << a << " " << b << " " << c << endl;
-                    //cout << A << " " << B << " " << C << endl;
-
-                    if( fabs(a - A) / pmsqr_ref > 10e-12 && fabs(b - B) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+                    if( fabs(a - A) / pmsqr_ref > 1e-10 && fabs(b - B) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
                         bGeneric = false;
 
-                    if( fabs(b - B) / pmsqr_ref > 10e-12 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+                    if( fabs(b - B) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
                         bGeneric = false;
 
-                    if( fabs(c - C) / pmsqr_ref > 10e-12 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(b - B) / pmsqr_ref < generic_threshold )
+                    if( fabs(c - C) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(b - B) / pmsqr_ref < generic_threshold )
                         bGeneric = false;
                 }
 

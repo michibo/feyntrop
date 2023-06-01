@@ -55,10 +55,9 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     // negative.
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es( scalarproducts );
     Eigen::MatrixXd scalarproducts_abs = - es.eigenvectors() * es.eigenvalues().cwiseAbs().asDiagonal() * es.eigenvectors().inverse();
-    
 
     bool bEuclidean = true;
-    if( !scalarproducts.isApprox( scalarproducts_abs ) ) // activate analytic continuation if scalarproducts is not negative-semi-definite
+    if( !scalarproducts.isZero() && !scalarproducts.isApprox( scalarproducts_abs ) ) // activate analytic continuation if scalarproducts is not negative-semi-definite
         bEuclidean = false;
 
     J_vector subgraph_table;
