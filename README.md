@@ -63,7 +63,7 @@ in the top directory of this repository to open the tutorial notebook.
 Low level interface
 -------------------
 
-**feyntrop** can also be used without python. For instance, in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
+**feyntrop** can also be used without python. For instance, this might be convenient in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
 ```
 {
   "graph" : [ [ [0, 1], 1 ], [ [0, 2], 1 ], [ [0, 3], 1 ], [ [1, 2], 1 ], [ [2, 3], 1], [ [3, 1], 1 ] ],
