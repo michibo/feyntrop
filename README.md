@@ -13,7 +13,7 @@ Download
 --------
 
  
-To download **feyntrop** and the necessary submodules ([Eigen](//eigen.tuxfamily.org/) use the command
+To download **feyntrop** and the necessary submodule ([Eigen](//eigen.tuxfamily.org/)) use the command
 
 ```
 git clone --recursive https://github.com/michibo/feyntrop.git
