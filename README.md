@@ -37,7 +37,7 @@ To (re)compile **feyntrop** call
 make clean && make
 ```
 
-If the compilation fails, check that the submodules (Eigen and pybind11) are loaded (see instructions above).
+If the compilation fails, check that the submodule (Eigen) is loaded (see instructions above).
 
 Tests
 -----
