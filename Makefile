@@ -1,21 +1,16 @@
-# Customize compiler and python version here if desired:
+# Customize compiler version here if desired:
 CC = gcc
 CXX = g++
-PY = python3
 
 #
 RM = rm -f
+LN = ln -f
 
-#CXXFLAGS+= $(shell $(PY)-config --cflags)
 CXXFLAGS+= -Iextern/eigen -Iextern
 CXXFLAGS+= -std=c++11 -fopenmp
 CXXFLAGS+= -ffast-math -funsafe-math-optimizations -fno-finite-math-only -O3
 CXXFLAGS+= -DNDEBUG
 CXXFLAGS+= -Wno-unused-variable -Wno-maybe-uninitialized
-#CXXFLAGS+= -fPIC -flto -fsized-deallocation
-
-#LDFLAGS+= -shared
-#LDFLAGS+= $(shell $(PY)-config --ldflags)
 
 MAIN=feyntrop examples/feyntrop tests/feyntrop
 
@@ -26,10 +21,10 @@ all:    $(MAIN)
 .depend :
 
 examples/feyntrop : feyntrop
-	ln $^ $@
+	$(LN) $^ $@
 
 tests/feyntrop : feyntrop
-	ln $^ $@
+	$(LN) $^ $@
 
 feyntrop : feyntrop.o
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
