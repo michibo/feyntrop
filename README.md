@@ -53,13 +53,13 @@ Ratios between newly computed and pre-computed coefficients in the epsilon expan
 Tutorial
 --------
 
-To run the tutorial in notebook form, you have to have [jupyter-notebook](//jupyter.org/) installed. Run
+To run the tutorial (which uses the high-level interface) in notebook form, you have to have [jupyter-notebook](//jupyter.org/) installed. Run
 ```
 jupyter notebook tutorial_2L_3pt.ipynb
 ```
 in the top directory of this repository to open the tutorial notebook.
 
-Low level interface
+Low-level interface
 -------------------
 
 **feyntrop** can also be used without python. For instance, this might be convenient in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
