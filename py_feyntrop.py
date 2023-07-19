@@ -1,6 +1,9 @@
-import feyntrop
+
 from math import log10
 from sympy import prod, gamma, series, symbols, zeros, IndexedBase
+
+import json
+import subprocess
 
     #=====
     # Misc 
@@ -208,8 +211,29 @@ def prepare_kinematic_data(edges, replacement_rules, phase_space_point):
 def tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, phase_space_point):
     P_uv, m_sqr = prepare_kinematic_data(edges, replacement_rules, phase_space_point)
     edges = [e[:-1] for e in edges]
-    graph = feyntrop.graph(edges)
+
+    P_uv = [ [ float(e) for e in row ] for row in P_uv ]
+    ft_input = {
+        "graph" : edges,
+        "dimension" : D0,
+        "scalarproducts" : P_uv,
+        "masses_sqr" : m_sqr,
+        "num_eps_terms" : eps_order,
+        "lambda" : Lambda,
+        "N" : N
+    }
+
+    json_str = json.dumps(ft_input)
     print("Prefactor: " + str(prefactor(edges, D0, eps_order)) + ".")
-    trop_res, Itr  = feyntrop.integrate_graph(graph, D0, P_uv, m_sqr, eps_order, Lambda, N)
+
+    p = subprocess.Popen(["./feyntrop"], stdout=subprocess.PIPE, stdin=subprocess.PIPE, encoding='utf8')
+    out, err = p.communicate(json_str)
+
+    output = json.loads(out)
+
+    trop_res = output["integral"]
+    Itr = output["IGtr"]
+
     print_res(trop_res)
     return trop_res, Itr
+
