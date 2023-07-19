@@ -227,8 +227,8 @@ def tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, pha
     json_str = json.dumps(ft_input)
     print("Prefactor: " + str(prefactor(edges, D0, eps_order)) + ".")
 
-    if !os.path.exists("./feyntrop"):
-        raise RuntimeError("The feyntrop binary file was not found. Please make sure it is compiled and available in the current working directory.")
+    if not os.path.exists("./feyntrop"):
+        raise RuntimeError("The 'feyntrop' binary file was not found. Please make sure it is compiled and available in the current working directory.")
 
     p = subprocess.Popen(["./feyntrop"], stdout=subprocess.PIPE, stdin=subprocess.PIPE, encoding='utf8')
     out, err = p.communicate(json_str)
