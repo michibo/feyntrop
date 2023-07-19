@@ -87,7 +87,7 @@ The field `"scalarproducts"` is a matrix of scalar products. The `(v,w)`-th entr
 The field `"masses_sqr"` is a list of masses, which contains one mass for each edge. (Of course, the masses might be 0.)
 The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetime dimension, `"num_eps_terms"` is the order in the epsilon expansion that should be computed and `"N"` is the number of points that shall be sampled.
 
-The content of the json file must be piped into **feyntrop**. For instance, like this:
+The content of the json file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
 ```
 feyntop < low_level_input.json
 ```
