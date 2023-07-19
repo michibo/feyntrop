@@ -63,7 +63,7 @@ in the top directory of this repository to open the tutorial notebook.
 Low level interface
 -------------------
 
-**feyntrop** can also be used without python. For instance, in a high-performance computing environment. To use this interface, create a file similar to the *low_level_input.json* file in this repository. Here is the content of this file:
+**feyntrop** can also be used without python. For instance, in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
 ```
 {
   "graph" : [ [ [0, 1], 1 ], [ [0, 2], 1 ], [ [0, 3], 1 ], [ [1, 2], 1 ], [ [2, 3], 1], [ [3, 1], 1 ] ],
@@ -85,14 +85,14 @@ The field `"graph"` encodes the Feynman graph. It is a list of edges of the form
 where `v0,w0` and so on are pairs of vertices corresponding to an edge and `nu0` is the corresponding edge weight.
 The field `"scalarproducts"` is a matrix of scalar products. The `(v,w)`-th entry of the matrix is the scalar product of `p_u * p_v` where `p_u` is the incoming momentum into vertex `u`. The matrix must hence be symmetric and have as many rows and columns as there are vertices. (Vertices without incoming momentum can be represented by setting the respective row and column equal to 0.) Due to momentum conservation, the rows and columns of the matrix must sum to 0.
 
-The field `"masses_sqr"` is a list of masses. One mass for each edge (which can be 0).
+The field `"masses_sqr"` is a list of masses, which contains one mass for each edge. (Of course, the masses might be 0.)
 The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetime dimension, `"num_eps_terms"` is the order in the epsilon expansion that should be computed and `"N"` is the number of points that shall be sampled.
 
 The content of the json file must be piped into **feyntrop**. For instance, like this:
 ```
 feyntop < low_level_input.json
 ```
-Among some logging output (via stderr), this command produces the output in json format 
+Among some logging information (via stderr), this command produces the output (via stdout) in json format 
 ```
 {"IGtr":84.0,"integral":[[[7.215238614660525,0.00203586844683068],[0.0,0.0]],[[-57.629482716637696,0.018239280410844466],[0.0,0.0]],[[240.79344300578586,0.09697082078903732],[0.0,0.0]]],"seconds preprocessing":0.001007578,"seconds sampling":2.0064038810000002}
 ```
@@ -102,7 +102,13 @@ in the form
 ```
 [ [ [ Re(I0), Delta(Re(I0)) ], [Im(I0), Delta(Im(I0))] ], [ [ Re(I1), Delta(Re(I1)) ], [Im(I1), Delta(Im(I1))] ], ... ]
 ```
-where `Delta` is the respective error term (i.e. one expected standard deviation).
+where `Delta` is the respective error term (i.e. one expected standard deviation) and 
+where `Re` and `Im` denote the real and imaginary part of the respective coefficient in the expansion.
 
 The other fields give store the sampling and the preprocessing time.
 
+If you are not interested in the logging information, use, for instance, the command
+```
+feyntop < low_level_input.json 2> /dev/null
+```
+instead.
