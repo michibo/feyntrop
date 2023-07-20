@@ -98,7 +98,7 @@ The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetim
 
 The content of the json file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
 ```
-feyntrop < low_level_input.json
+./feyntrop < low_level_input.json
 ```
 Among some logging information (via stderr), this command produces the output (via stdout) in json format 
 ```
@@ -117,7 +117,7 @@ The other fields give store the sampling and the preprocessing time.
 
 If you are not interested in the logging information, use, for instance, the command
 ```
-feyntrop < low_level_input.json 2> /dev/null
+./feyntrop < low_level_input.json 2> /dev/null
 ```
 instead.
 
@@ -127,7 +127,7 @@ Changing the number of CPUs used
 By default, **feyntrop** uses the maximal number of available CPUs in the sampling step. This can be changed using the environment variable `OMP_NUM_THREADS`.
 For instance, the command
 ```
-OMP_NUM_THREADS=2 feyntrop < low_level_input.json 2> /dev/null
+OMP_NUM_THREADS=2 ./feyntrop < low_level_input.json 2> /dev/null
 ```
 performs the sampling step for the integration of the input from `low_level_input.json` with only two threads.
 
