@@ -6,7 +6,7 @@ feyntrop
 If **feyntrop** is helpful in your research, please cite,
 [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime' arXiv:2302.08955](//arxiv.org/abs/2302.08955) as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals' arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
-The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP and the [xoshiro256+](http://prng.di.unimi.it/) random number generator.
+The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, the [xoshiro256+](http://prng.di.unimi.it/) random number generator and the [JSON for Modern C++](//github.com/nlohmann/json) library.
 
 Download
 --------
@@ -96,11 +96,11 @@ The field `"scalarproducts"` is a matrix of scalar products. The `(v,w)`-th entr
 The field `"masses_sqr"` is a list of masses, which contains one mass for each edge. (Of course, the masses might be 0.)
 The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetime dimension, `"num_eps_terms"` is the order in the epsilon expansion that should be computed and `"N"` is the number of points that shall be sampled.
 
-The content of the json file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
+The content of the JSON file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
 ```
 ./feyntrop < low_level_input.json
 ```
-Among some logging information (via stderr), this command produces the output (via stdout) in json format 
+Among some logging information (via stderr), this command produces the output (via stdout) in JSON format 
 ```
 {"IGtr":84.0,"integral":[[[7.215238614660525,0.00203586844683068],[0.0,0.0]],[[-57.629482716637696,0.018239280410844466],[0.0,0.0]],[[240.79344300578586,0.09697082078903732],[0.0,0.0]]],"seconds preprocessing":0.001007578,"seconds sampling":2.0064038810000002}
 ```
