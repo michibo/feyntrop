@@ -59,6 +59,15 @@ jupyter notebook tutorial_2L_3pt.ipynb
 ```
 in the top directory of this repository to open the tutorial notebook.
 
+Examples
+--------
+
+Examples can be found in the `examples/` folder in this repository. 
+In this folder, one can for instance run the 5 loop 2-point example from the paper with the command
+```
+python 5L_2pt.py
+```
+
 Low-level interface
 -------------------
 
@@ -89,7 +98,7 @@ The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetim
 
 The content of the json file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
 ```
-feyntop < low_level_input.json
+feyntrop < low_level_input.json
 ```
 Among some logging information (via stderr), this command produces the output (via stdout) in json format 
 ```
@@ -108,6 +117,22 @@ The other fields give store the sampling and the preprocessing time.
 
 If you are not interested in the logging information, use, for instance, the command
 ```
-feyntop < low_level_input.json 2> /dev/null
+feyntrop < low_level_input.json 2> /dev/null
 ```
 instead.
+
+Changing the number of CPUs used
+--------------------------------
+
+By default, **feyntrop** uses the maximal number of available CPUs in the sampling step. This can be changed using the environment variable `OMP_NUM_THREADS`.
+For instance, the command
+```
+OMP_NUM_THREADS=2 feyntrop < low_level_input.json 2> /dev/null
+```
+performs the sampling step for the integration of the input from `low_level_input.json` with only two threads.
+
+A similar option can be used with the python interface.  For instance,
+```
+OMP_NUM_THREADS=2 python 5L_2pt.py
+```
+runs the 5 loop 2-point integral example with 2 threads.
