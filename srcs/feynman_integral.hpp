@@ -363,7 +363,7 @@ vector< pair< stats, stats > > feynman_integral_estimate(
     }
 
     if( !serr.str().empty() )
-        cout << serr.str() << endl;
+        clog << serr.str() << endl;
 
     vector< pair< stats, stats > > result( num_eps_terms );
     for( int j = 0; j < num_eps_terms; j++ )

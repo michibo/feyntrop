@@ -10,19 +10,88 @@ Copyright (c) 2020-2023   Michael Borinsky
 
 #include <Eigen/Eigenvalues> 
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/iostream.h>
-#include <pybind11/eigen.h>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 #include "graph.hpp"
 #include "tropical_sampling.hpp"
 #include "feynman_integral.hpp"
 
-namespace py = pybind11;
-
-pair< vector< pair< pair< double, double >, pair< double, double > > >, double > integrate_graph( const graph& g, int D, const Eigen::MatrixXd& scalarproducts, const Eigen::VectorXd& masses_sqr, int num_eps_terms, double lambda, uint64_t N )
+int main(int argc, char *argv[])
 {
+    json data = json::parse(cin);
+    //clog << data << endl;
+
+    if( !data.contains("N") || !data.contains("graph") || !data.contains("dimension") || !data.contains("scalarproducts") || !data.contains("masses_sqr") || !data.contains("num_eps_terms") || !data.contains("lambda") )
+        throw std::invalid_argument("input json must contain the data fields: N, graph, dimension, scalarproducts, masses_sqr, num_eps_terms, lambda");
+
+    if( !data["N"].is_number() )
+        throw std::invalid_argument("input N must be a number");
+    if( !data["lambda"].is_number() )
+        throw std::invalid_argument("input lambda must be a number");
+    if( !data["dimension"].is_number() )
+        throw std::invalid_argument("input dimension must be a number");
+    if( !data["num_eps_terms"].is_number() )
+        throw std::invalid_argument("input num_eps_terms must be a number");
+
+    uint64_t N = data["N"];
+    double lambda = data["lambda"];
+    double D = data["dimension"];
+    int num_eps_terms = data["num_eps_terms"];
+
+    if( !data["graph"].is_array() )
+        throw std::invalid_argument("input graph must be a list of the form [[[v1_1,v2_1],nu_1],[[v1_2,v2_2],nu_2],...]");
+
+    graph::edge_vector edges;
+    for( auto& edge : data["graph"] )
+    {
+        if( edge.size() != 2 || edge[0].size() != 2 )
+            throw std::invalid_argument("input graph must be a list of the form [[[v1_1,v2_1],nu_1],[[v1_2,v2_2],nu_2],...]");
+
+        if( !edge[0][0].is_number() || !edge[0][1].is_number() || !edge[1].is_number() )
+            throw std::invalid_argument("input graph must be a list of the form [[[v1_1,v2_1],nu_1],[[v1_2,v2_2],nu_2],...]");
+
+        int k = edge[0][0];
+        int l = edge[0][1];
+        double nu = edge[1];
+
+        edges.push_back( make_pair( make_pair(k,l), nu ) );
+    }
+
+    graph g( edges );
+
+    if( !data["scalarproducts"].is_array() || data["scalarproducts"].size() != g._V )
+        throw std::invalid_argument("input scalarproducts must be a (V x V)-matrix");
+
+    Eigen::MatrixXd scalarproducts(g._V, g._V);
+
+    for( int k = 0; k < g._V; k++ )
+    {
+        if( !data["scalarproducts"][k].is_array() || data["scalarproducts"][k].size() != g._V )
+            throw std::invalid_argument("input scalarproducts must be a (V x V)-matrix");
+
+        for( int l = 0; l < g._V; l++ )
+        {
+            if( !data["scalarproducts"][k][l].is_number() )
+                throw std::invalid_argument("input scalarproducts must be a (V x V)-matrix");
+            
+            scalarproducts(k,l) = data["scalarproducts"][k][l];
+        }
+    }
+
+    Eigen::VectorXd masses_sqr( g._E );
+
+    if( !data["masses_sqr"].is_array() || data["masses_sqr"].size() != g._E )
+        throw std::invalid_argument("input masses_sqr must be an array of size E");
+
+    for( int e = 0; e < g._E; e++ )
+    {
+        if( !data["masses_sqr"][e].is_number() )
+            throw std::invalid_argument("input masses_sqr must be an array of size E");
+            
+        masses_sqr[e] = data["masses_sqr"][e];
+    }
+
     if( scalarproducts.cols() != g._V || scalarproducts.rows() != g._V || !scalarproducts.isApprox( scalarproducts.transpose() ) )
     {
         stringstream s;
@@ -42,12 +111,12 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     if( masses_sqr.size() != g._E )
     {
         stringstream s;
-        s << "integrate_graph: one mass must be given for each edge.";
+        s << "one mass must be given for each edge.";
         throw domain_error(s.str());
     }
 
-    // cout << "pipj: " << endl;
-    // cout << scalarproducts << endl;
+    // clog << "pipj: " << endl;
+    // clog << scalarproducts << endl;
 
     // compute the negative absolute of the scalarproducts matrix
     // i.e. make all eigenvalues negative while keeping Eigen vectors.
@@ -70,38 +139,39 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
 
     // time tracking
     chrono::time_point<chrono::system_clock> start, end;
-    chrono::duration<double> elapsed_seconds;
+    chrono::duration<double> elapsed_seconds_pre;
+    chrono::duration<double> elapsed_seconds_int;
 
 
     // Start with Jr subgraph table: (i.e. preprocessing step)
-    // cout << "Started calculating Jr-table" << endl;
+    // clog << "Started calculating Jr-table" << endl;
 
     start = std::chrono::system_clock::now();
     tie(subgraph_table, W, IGtr, bGPproperty, bPseudoEuclidean, bGeneric) = generate_subgraph_table( g, D, scalarproducts, masses_sqr, num_eps_terms > 1, !bEuclidean );
-    //end = std::chrono::system_clock::now();
+    end = std::chrono::system_clock::now();
 
-    //elapsed_seconds = end-start;
+    elapsed_seconds_pre = end-start;
 
-    // cout << "Finished calculating Jr-table in " << elapsed_seconds.count() << " seconds " << endl;
-    // cout << "Using " << subgraph_table.size() * sizeof(J_vector::value_type) << " bytes of RAM " << endl;
+    // clog << "Finished calculating Jr-table in " << elapsed_seconds_pre.count() << " seconds " << endl;
+    // clog << "Using " << subgraph_table.size() * sizeof(J_vector::value_type) << " bytes of RAM " << endl;
 
     // Tropical results:
-    // cout << "Superficial degree of divergence: " << W << endl;
-    // cout << "I^tr = " << IGtr << endl;
+    // clog << "Superficial degree of divergence: " << W << endl;
+    // clog << "I^tr = " << IGtr << endl;
 
-    cout << "(Effective) kinematic regime: ";
+    clog << "(Effective) kinematic regime: ";
     if( bEuclidean )
-        cout << "Euclidean";
+        clog << "Euclidean";
     else if( bPseudoEuclidean )
-        cout << "Pseudo-Euclidean";
+        clog << "Pseudo-Euclidean";
     else
-        cout << "Minkowski";
+        clog << "Minkowski";
 
     if( bGeneric )
-        cout << " (generic).";
+        clog << " (generic).";
     else
-        cout << " (exceptional).";
-    cout << endl;
+        clog << " (exceptional).";
+    clog << endl;
 
     if( bEuclidean )
         assert( bPseudoEuclidean );
@@ -129,17 +199,17 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     if( !bGeneric && !bEuclidean && W > 0 )
     {   
         //As the integral has positive superficial degree of divergence, we need control over the F polynomials' Newton polytope. 
-        cout << "Warning: Kinematics are non-Euclidean and (very) exceptional. Detailed info on the N[F] polytope is needed. The integration might fail or be unstable. Check the result by 1) varying the number of sample points 2) evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic) 3) increasing the spacetime dimension D0." << endl;
+        clog << "Warning: Kinematics are non-Euclidean and (very) exceptional. Detailed info on the N[F] polytope is needed. The integration might fail or be unstable. Check the result by 1) varying the number of sample points 2) evaluating at multiple kinematic points close to the current one (i.e. by making the kinematics more generic) 3) increasing the spacetime dimension D0." << endl;
         if( bGPproperty )
-            cout << "The generalized permutahedron property seems fulfilled. This is a good sign that the integration might succeed anyway." << endl;
+            clog << "The generalized permutahedron property seems fulfilled. This is a good sign that the integration might succeed anyway." << endl;
         else
-            cout << "The generalized permutahedron property does NOT seem fulfilled. Likely, there are singular points in the integration domain that impeed convergence." << endl;
+            clog << "The generalized permutahedron property does NOT seem fulfilled. Likely, there are singular points in the integration domain that impeed convergence." << endl;
     }
     else
     {
         if( bGPproperty )
         {
-            cout << "Generalized permutahedron property seems fulfilled." << endl;
+            clog << "Generalized permutahedron property seems fulfilled." << endl;
         }
         else
         {
@@ -153,14 +223,14 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
                 throw domain_error(s.str());
             }
             else
-                cout << "Generalized permutahedron property seems NOT fulfilled. However, the integration should work fine as the N[F] polytope is not relevant for the given dimension and edge weights." << endl;
+                clog << "Generalized permutahedron property seems NOT fulfilled. However, the integration should work fine as the N[F] polytope is not relevant for the given dimension and edge weights." << endl;
         }
     }
 
     double deformation_lambda = 0.0;
     if( !bPseudoEuclidean )
     {
-        cout << "Analytic continuation: activated. Lambda = " << lambda << "." << endl;
+        clog << "Analytic continuation: activated. Lambda = " << lambda << "." << endl;
 
         deformation_lambda = lambda;
     }
@@ -172,21 +242,21 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
     // Initialize random number generator
     true_random::xoshiro256 gen( 0 ); // Pick your favorite random seed.
 
-    cout << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
+    clog << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 
-    //start = std::chrono::system_clock::now();
+    start = std::chrono::system_clock::now();
     vector< pair< stats, stats > > res = feynman_integral_estimate( N, g, D, scalarproducts, masses_sqr, num_eps_terms, deformation_lambda, subgraph_table, gen );
     end = std::chrono::system_clock::now();
 
-    elapsed_seconds = end-start;
+    elapsed_seconds_int = end-start;
 
     // Some performance statistics
-    cout << "Finished in " << elapsed_seconds.count() << " seconds = " << elapsed_seconds.count()/3600 << " hours." << endl;
-    // cout << "Average speed: " << N/elapsed_seconds.count() << " samples / second " << endl;
-    // cout << "Relative accuracy: " << res_r.acc()/res_r.avg() << endl;
+    clog << "Finished in " << (elapsed_seconds_int + elapsed_seconds_pre).count() << " seconds = " << (elapsed_seconds_int + elapsed_seconds_pre).count()/3600 << " hours." << endl;
+    // clog << "Average speed: " << N/elapsed_seconds.count() << " samples / second " << endl;
+    // clog << "Relative accuracy: " << res_r.acc()/res_r.avg() << endl;
 
     // Tropically accelerated Monte Carlo results:
-    //cout << "I = (" << res_r.avg() << " + i * " << res_i.avg() << ") +/- (" << res_r.acc() << " + i * " << res_i.acc() << ")" << endl;
+    //clog << "I = (" << res_r.avg() << " + i * " << res_i.avg() << ") +/- (" << res_r.acc() << " + i * " << res_i.acc() << ")" << endl;
 
     vector< pair< pair< double, double >, pair< double, double > > > res_nums( num_eps_terms );
     for( int j = 0; j < num_eps_terms; j++ )
@@ -195,27 +265,15 @@ pair< vector< pair< pair< double, double >, pair< double, double > > >, double >
                                  make_pair( get<1>(res[j]).avg(), get<1>(res[j]).acc()) );
     }
 
-    return make_pair(res_nums, IGtr);
-}
+    json output;
 
-PYBIND11_MODULE(feyntrop, m) {
-    m.doc() = "feyntrop plugin";
+    output["integral"] = res_nums;
+    output["IGtr"] = IGtr;
+    output["seconds preprocessing"] = elapsed_seconds_pre.count();
+    output["seconds sampling"] = elapsed_seconds_int.count();
 
-    py::class_<graph>(m, "graph")
-        .def(py::init<graph::edge_vector>())
-        .def_readwrite("E", &graph::_E)
-        .def_readwrite("V", &graph::_V)
-        .def_readwrite("edges", &graph::_edges)
-        .def("__repr__",
-            [](const graph& g) {
-                stringstream s;
-                s << g;
-                return s.str();
-            });
+    cout << output.dump() << endl;
 
-    m.def("integrate_graph", &integrate_graph,
-            py::call_guard<py::scoped_ostream_redirect,
-                           py::scoped_estream_redirect>()
-        );
+    return 0;
 }
 

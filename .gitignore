@@ -1,6 +1,8 @@
+feyntrop
+examples/feyntrop
+tests/feyntrop
 .depend
 *.o
-*.so
 *.pyc
 .ipynb_checkpoints/
 __pycache__
