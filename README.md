@@ -11,19 +11,11 @@ The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, 
 Download
 --------
  
-To download **feyntrop** and the necessary submodule ([Eigen](//eigen.tuxfamily.org/)) use the command
-
-```
-git clone --recursive https://github.com/michibo/feyntrop.git
-cd feyntrop
-```
-
-or 
+To download **feyntrop** use the command
 
 ```
 git clone https://github.com/michibo/feyntrop.git
 cd feyntrop
-git submodule update --init --recursive
 ```
 
 Compilation
@@ -35,7 +27,7 @@ To (re)compile **feyntrop** call
 make clean && make
 ```
 
-If the compilation fails, check that the submodule (Eigen) is loaded (see instructions above).
+If the compilation fails, check if you have a suitable C++ compiler installed (see below for macOS problems). 
 
 ### Problems specific to macOS
 
