@@ -1,13 +1,17 @@
 # Customize compiler version here if desired:
 CC = gcc
 CXX = g++
+# This might be necessary on macOS where the default C++ compiler does not support OpenMP.
 
 #
 RM = rm -f
 LN = ln -f
 
+# On macOS it might help to remove the following line. Doing so unfortunately, makes feyntrop much slower. A better way is to install a C++ compiler that supports OpenMP.
+CXXFLAGS+= -fopenmp
+# Configuration of C++ compiler
 CXXFLAGS+= -Iextern/eigen -Iextern
-CXXFLAGS+= -std=c++11 -fopenmp
+CXXFLAGS+= -std=c++11 
 CXXFLAGS+= -ffast-math -funsafe-math-optimizations -fno-finite-math-only -O3
 CXXFLAGS+= -DNDEBUG
 CXXFLAGS+= -Wno-unused-variable -Wno-maybe-uninitialized
