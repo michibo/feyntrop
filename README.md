@@ -33,11 +33,11 @@ If the compilation fails, check if you have a suitable C++ compiler installed (s
 
 ### Problems specific to macOS
 
-The default macOS C++ compiler does not support OpenMP. So on macOS, the compilation of ***feyntrop*** might also fail with an error mentioning the *-fopenmp* flag. If you use homebrew, installing an OpenMP compatible C++ compiler via the command
+The default macOS C++ compiler does not support OpenMP. So on macOS, the compilation of **feyntrop** might also fail with an error mentioning the `-fopenmp` flag. If you use homebrew, installing an OpenMP compatible C++ compiler via the command
 ```
 brew install libomp
 ```
-might help. If that does not help, then probably the paths to the compiler binaries in the *Makefile* need to be adjusted for your local environment. See the *Makefile* for some hints on how to do this.
+might help. If that does not help, then probably the paths to the compiler binaries in the `Makefile` need to be adjusted for your local environment. See the `Makefile` for some hints on how to do this.
 
 Tests
 -----
