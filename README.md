@@ -55,7 +55,7 @@ If you cannot or don't want to use `python`, you can also directly test the `C++
 ```
 ./feyntrop < low_level_input.json
 ```
-In the top-level directory. The output should be the value of the Feynman integral of the wheel graph with three spokes. This output roughly looks as follows:
+In the top-level directory. The output should be the value of the Feynman integral of the wheel graph with three spokes. This output roughly looks as follows (see the **Low-level interface** section below for details of the format):
 ```
 {"IGtr":84.0,"integral":[[[7.215238614660525,0.00203586844683068],[0.0,0.0]],[[-57.629482716637696,0.018239280410844466],[0.0,0.0]],[[240.79344300578586,0.09697082078903732],[0.0,0.0]]],"seconds preprocessing":0.001007578,"seconds sampling":2.0064038810000002}
 ```
