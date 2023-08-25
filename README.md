@@ -5,8 +5,8 @@
 
 The whole **feyntrop** project  is managed  as [a github repository](//github.com/michibo/feyntrop/). Comments, bug-reports and pull-requests are very welcome.
 
-If **feyntrop** is helpful in your research, please cite,
-[M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime' arXiv:2302.08955](//arxiv.org/abs/2302.08955) as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals' arXiv:2008.12310](//arxiv.org/abs/2008.12310).
+If **feyntrop** is helpful in your research, please cite, [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime', *Computer Physics Communications*, 292 (2023), 108874](//doi.org/10.1016/j.cpc.2023.108874) [arXiv:2302.08955](//arxiv.org/abs/2302.08955)
+as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals', Annales de l'Institut Henri Poincaré D (2023) to appear (online first)](//doi.org/10.4171/AIHPD/158) [arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
 The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, the [xoshiro256+](http://prng.di.unimi.it/) random number generator and the [JSON for Modern C++](//github.com/nlohmann/json) library.
 
@@ -50,6 +50,15 @@ python test_suite.py
 ```
 This python script uses **feyntrop** to compute examples between 1-2 loops and 2-5 points, and then compares against pre-computed values.
 Ratios between newly computed and pre-computed coefficients in the epsilon expansion will be printed, which should all be close to 1.
+
+If you cannot or don't want to use `python`, you can also directly test the `C++` compiled code by running
+```
+./feyntrop < low_level_input.json
+```
+In the top-level directory. The output should be the value of the Feynman integral of the wheel graph with three spokes. This output roughly looks as follows:
+```
+{"IGtr":84.0,"integral":[[[7.215238614660525,0.00203586844683068],[0.0,0.0]],[[-57.629482716637696,0.018239280410844466],[0.0,0.0]],[[240.79344300578586,0.09697082078903732],[0.0,0.0]]],"seconds preprocessing":0.001007578,"seconds sampling":2.0064038810000002}
+```
 
 Tutorial
 --------
