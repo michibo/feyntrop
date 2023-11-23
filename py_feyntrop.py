@@ -221,23 +221,36 @@ def tropical_integration(N, D0, Lambda, eps_order, edges, replacement_rules, pha
         "masses_sqr" : m_sqr,
         "num_eps_terms" : eps_order,
         "lambda" : Lambda,
-        "N" : N
+        "N" : N,
+        "seed" : 0
     }
 
     json_str = json.dumps(ft_input)
-    print("Prefactor: " + str(prefactor(edges, D0, eps_order)) + ".")
 
     if not os.path.exists("./feyntrop"):
         raise RuntimeError("The 'feyntrop' binary file was not found. Please make sure it is compiled and available in the current working directory.")
 
+    print("Starting integration using feyntrop with input:")
+    print("Graph with edge weights:", edges)
+    print("Dimension:", D0)
+    print("Scalarproducts (matrix element (u,v) is the scalar product of ext. momentum flowing into vertices u and v):\n", P_uv)
+    print("Squared masses:", m_sqr)
+    print("Epsilon order:", eps_order)
+    print("Deformation parameter Lambda:", Lambda)
+    print("Sample points:", N)
+
     p = subprocess.Popen(["./feyntrop"], stdout=subprocess.PIPE, stdin=subprocess.PIPE, encoding='utf8')
     out, err = p.communicate(json_str)
+
+    if 0 != p.returncode:
+        raise RuntimeError("An error occurred in the feyntrop core-code. No output was generated.")
 
     output = json.loads(out)
 
     trop_res = output["integral"]
     Itr = output["IGtr"]
 
+    print("Prefactor: " + str(prefactor(edges, D0, eps_order)) + ".")
     print_res(trop_res)
     return trop_res, Itr
 

@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
     json data = json::parse(cin);
     //clog << data << endl;
 
-    if( !data.contains("N") || !data.contains("graph") || !data.contains("dimension") || !data.contains("scalarproducts") || !data.contains("masses_sqr") || !data.contains("num_eps_terms") || !data.contains("lambda") )
-        throw std::invalid_argument("input json must contain the data fields: N, graph, dimension, scalarproducts, masses_sqr, num_eps_terms, lambda");
+    if( !data.contains("N") || !data.contains("graph") || !data.contains("dimension") || !data.contains("scalarproducts") || !data.contains("masses_sqr") || !data.contains("num_eps_terms") || !data.contains("lambda") || !data.contains("seed") )
+        throw std::invalid_argument("input json must contain the data fields: N, graph, dimension, scalarproducts, masses_sqr, num_eps_terms, lambda, seed");
 
     if( !data["N"].is_number() )
         throw std::invalid_argument("input N must be a number");
@@ -33,8 +33,11 @@ int main(int argc, char *argv[])
         throw std::invalid_argument("input dimension must be a number");
     if( !data["num_eps_terms"].is_number() )
         throw std::invalid_argument("input num_eps_terms must be a number");
+    if( !data["seed"].is_number() )
+        throw std::invalid_argument("input seed must be a number");
 
     uint64_t N = data["N"];
+    uint64_t seed = data["seed"];
     double lambda = data["lambda"];
     double D = data["dimension"];
     int num_eps_terms = data["num_eps_terms"];
@@ -240,7 +243,7 @@ int main(int argc, char *argv[])
     omp_set_num_threads(max_threads);
 
     // Initialize random number generator
-    true_random::xoshiro256 gen( 0 ); // Pick your favorite random seed.
+    true_random::xoshiro256 gen( seed );
 
     clog << "Started integrating using " << max_threads << " threads and N = " << (double)N << " points." <<  endl;
 

@@ -93,7 +93,8 @@ Low-level interface
   "masses_sqr" : [ 0, 1, 2, 3, 4, 5 ],
   "num_eps_terms" : 3,
   "lambda" : 0,
-  "N" : 10000000
+  "N" : 10000000,
+  "seed" : 0
 }
 ```
 The field `"graph"` encodes the Feynman graph. It is a list of edges of the form 
@@ -104,7 +105,7 @@ where `v0,w0` and so on are pairs of vertices corresponding to an edge and `nu0`
 The field `"scalarproducts"` is a matrix of scalar products. The `(v,w)`-th entry of the matrix is the scalar product of `p_u * p_v` where `p_u` is the incoming momentum into vertex `u`. The matrix must hence be symmetric and have as many rows and columns as there are vertices. (Vertices without incoming momentum can be represented by setting the respective row and column equal to 0.) Due to momentum conservation, the rows and columns of the matrix must sum to 0.
 
 The field `"masses_sqr"` is a list of masses, which contains one mass for each edge. (Of course, the masses might be 0.)
-The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetime dimension, `"num_eps_terms"` is the order in the epsilon expansion that should be computed and `"N"` is the number of points that shall be sampled.
+The field `"lambda"` is the deformation parameter, `"dimension"` is the spacetime dimension, `"num_eps_terms"` is the order in the epsilon expansion that should be computed and `"N"` is the number of points that shall be sampled. The `"seed"` is the seed for the random number generators. For most practical purposes the seed can just be set to 0.
 
 The content of the JSON file must be piped into the **feyntrop** executable file, which is created in the top-directory of this repository by the `make` command. For instance, like this:
 ```

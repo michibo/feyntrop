@@ -81,6 +81,152 @@ bool is_mass_momentum_spanning_subgraph(
     return sum / pmsqr_ref < 1e-12;
 }
 
+bool is_kinematic_generic_3_cut(
+        const graph& g, 
+        const edge_subgraph_type& subgraph, 
+        const Eigen::MatrixXd& PGP,
+        const Eigen::VectorXd& masses_sqr,
+        const vector<int>& components_map,
+        double pmsqr_ref,
+        double generic_threshold
+        )
+{
+    assert( PGP.cols() == 2 && PGP.rows() == 2 );
+
+    if( PGP.isZero() )
+        return true;
+
+    double a = PGP(0,0);
+    double b = PGP(1,1);
+    double gamma = PGP(0,1);
+    double c = a + b + 2*gamma;
+
+    double A = 0;
+    double B = 0;
+    double C = 0;
+
+    for( int j = 0; j < g._E; j ++ )
+    {
+        if( subgraph[j] )
+            continue;
+
+        pair<int, int> edge;
+        int k,l;
+        double c;
+        tie(edge, c) = g._edges[j];
+        tie(k,l) = edge;
+
+        assert( k != l );
+        assert( k > l );
+
+        int kc = components_map[k];
+        int lc = components_map[l];
+
+        if( kc == lc )
+            continue;
+
+        if( kc == 0 || lc == 0 )
+            A += masses_sqr[j];
+
+        if( kc == 1 || lc == 1 )
+            B += masses_sqr[j];
+
+        if( kc == 2 || lc == 2 )
+            C += masses_sqr[j];
+    }
+
+    if( fabs(a - A) / pmsqr_ref > 1e-10 && fabs(b - B) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+        return false;
+
+    if( fabs(b - B) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
+        return false;
+
+    if( fabs(c - C) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(b - B) / pmsqr_ref < generic_threshold )
+        return false;
+
+    return true;
+}
+
+// checks if Phi/F's Newton polytope is a generalized permutahedron subgraph by subgraph.
+// see: Theorem 12.1 of arXiv:1709.07504 on the condition being used here
+bool has_subgraph_gp_property(
+        const graph& g, 
+        const edge_subgraph_type& subgraph, 
+        const J_vector& subgraph_table,
+        int L,
+        bool mm
+        )
+{
+    assert( subgraph.size() >= 2 );
+
+    int z = mm ? L + 1 : L;
+
+    for( int a = 0; a < g._E; a++ )
+    {
+        if(!subgraph[a])
+            continue;
+
+        edge_subgraph_type A = subgraph;
+        A.reset(a);
+
+        bool mmAB, mmA, mmB;
+        int LAB, LA, LB;
+        double Jr, r;
+        
+        tie( Jr, r, mmA, LA ) = subgraph_table[A.data()];
+
+        int zA = mmA ? LA + 1 : LA;
+
+        for( int b = a+1; b < g._E; b++ )
+        {
+            if(!subgraph[b])
+                continue;
+
+            edge_subgraph_type AB = A; 
+            edge_subgraph_type B = subgraph; 
+            AB.reset(b);
+            B.reset(b);
+
+            tie( Jr, r, mmB, LB ) = subgraph_table[B.data()];
+            tie( Jr, r, mmAB, LAB ) = subgraph_table[AB.data()];
+
+            int zB = mmB ? LB + 1 : LB;
+            int zAB = mmAB ? LAB + 1 : LAB;
+
+            if( zA + zB > z + zAB )
+            {
+/*                          // This code provides very detailed information on the violation of the generalized permutahedron property. 
+                // It is probably not helpful for people who don't know or care about generalized permutahedra.
+
+                stringstream s;
+                s << "Warning: the graph " << g << " Phi/F polynomial's Newton polytope is NOT a generalized permutahedron. With the subgraphs ";
+                s << ", A: ";
+                for( int j = 0; j < g._E; j++ )
+                    if(A[j])
+                        s << j << " ";
+                s << ", B: ";
+                for( int j = 0; j < g._E; j++ )
+                    if(B[j])
+                        s << j << " ";
+                s << ", AnB: ";
+                for( int j = 0; j < g._E; j++ )
+                    if(AB[j])
+                        s << j << " ";
+                s << "AuB: ";
+                for( int j = 0; j < g._E; j++ )
+                    if(subgraph[j])
+                        s << j << " ";
+                s << ". We get the violation of the property z(A) + z(B) <= z(AnB) + z(AuB).";
+                cout << s.str() << endl;
+*/
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 template < class CutFunc >
 void visit_cuts( 
         const graph& g, 
@@ -242,56 +388,8 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
                         bPseudoEuclidean = false;
                 }
 
-                if( cV == 3 && !PGP.isZero())
-                {
-                    double a = PGP(0,0);
-                    double b = PGP(1,1);
-                    double gamma = PGP(0,1);
-                    double c = a + b + 2*gamma;
-
-                    double A = 0;
-                    double B = 0;
-                    double C = 0;
-
-                    for( int j = 0; j < g._E; j ++ )
-                    {
-                        if( subgraph[j] )
-                            continue;
-
-                        pair<int, int> edge;
-                        int k,l;
-                        double c;
-                        tie(edge, c) = g._edges[j];
-                        tie(k,l) = edge;
-
-                        assert( k != l );
-                        assert( k > l );
-
-                        int kc = components_map[k];
-                        int lc = components_map[l];
-
-                        if( kc == lc )
-                            continue;
-
-                        if( kc == 0 || lc == 0 )
-                            A += masses_sqr[j];
-
-                        if( kc == 1 || lc == 1 )
-                            B += masses_sqr[j];
-
-                        if( kc == 2 || lc == 2 )
-                            C += masses_sqr[j];
-                    }
-
-                    if( fabs(a - A) / pmsqr_ref > 1e-10 && fabs(b - B) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
-                        bGeneric = false;
-
-                    if( fabs(b - B) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(c - C) / pmsqr_ref < generic_threshold )
-                        bGeneric = false;
-
-                    if( fabs(c - C) / pmsqr_ref > 1e-10 && fabs(a - A) / pmsqr_ref < generic_threshold && fabs(b - B) / pmsqr_ref < generic_threshold )
-                        bGeneric = false;
-                }
+                if( cV == 3 )
+                    bGeneric = bGeneric && is_kinematic_generic_3_cut(g, subgraph, PGP, masses_sqr, components_map, pmsqr_ref, generic_threshold );
 
                 mm = is_mass_momentum_spanning_subgraph(g, subgraph, PGP, masses_sqr, Xs, Xinvs, components_map, cV, pmsqr_ref, La, ldlt);
                 assert( n != 0 || !mm );
@@ -321,82 +419,33 @@ tuple< J_vector, double, double, bool, bool, bool > generate_subgraph_table(
             if( r/W_ref < 1e-12 && !( n == g._E ) )
             {
                 stringstream s;
-                s << "Error: the graph " << g << " has a UV or IR subdivergence. The subgraph with edges ";
+                s << "Error: the graph " << g << " has a UV or IR subdivergence. \nE.g. the subgraph with edge numbers { ";
                 for( int j = 0; j < g._E; j++ )
                     if(subgraph[j])
                         s << j << " ";
+                s << "} or, explicitly, with the edges { ";
 
-                s << " has an (effective) superficial degree of divergence of " << r;
+                for( int j = 0; j < g._E; j++ )
+                {
+                    if( !subgraph[j] )
+                        continue;
+
+                    pair<int, int> edge;
+                    int k,l;
+                    double c;
+                    tie(edge, c) = g._edges[j];
+                    tie(k,l) = edge;
+                    s << "[" << k << "," << l << "] ";
+                }
+                s << "}";
+
+                s << " has an (effective) superficial degree of divergence of " << r << ".";
                 throw domain_error(s.str());
             }
 
             // check if Phi/F's Newton polytope is a generalized permutahedron.
-            // see: Theorem 12.1 of arXiv:1709.07504 on the condition being used here
             if( bPhiTrCompute && bNonEuclidean && n >= 2 )
-            {
-                int z = mm ? L + 1 : L;
-
-                for( int a = 0; a < g._E; a++ )
-                {
-                    if(!subgraph[a])
-                        continue;
-
-                    edge_subgraph_type A = subgraph;
-                    A.reset(a);
-
-                    bool mmAB, mmA, mmB;
-                    int LAB, LA, LB;
-                    double Jr, r;
-                    
-                    tie( Jr, r, mmA, LA ) = subgraph_table[A.data()];
-
-                    int zA = mmA ? LA + 1 : LA;
-
-                    for( int b = a+1; b < g._E; b++ )
-                    {
-                        if(!subgraph[b])
-                            continue;
-
-                        edge_subgraph_type AB = A; 
-                        edge_subgraph_type B = subgraph; 
-                        AB.reset(b);
-                        B.reset(b);
-
-                        tie( Jr, r, mmB, LB ) = subgraph_table[B.data()];
-                        tie( Jr, r, mmAB, LAB ) = subgraph_table[AB.data()];
-
-                        int zB = mmB ? LB + 1 : LB;
-                        int zAB = mmAB ? LAB + 1 : LAB;
-
-                        if( zA + zB > z + zAB )
-                        {
-                            bGPprop = false;
-/*
-                            stringstream s;
-                            s << "Warning: the graph " << g << " Phi/F polynomial's Newton polytope is NOT a generalized permutahedron. With the subgraphs ";
-                            s << ", A: ";
-                            for( int j = 0; j < g._E; j++ )
-                                if(A[j])
-                                    s << j << " ";
-                            s << ", B: ";
-                            for( int j = 0; j < g._E; j++ )
-                                if(B[j])
-                                    s << j << " ";
-                            s << ", AnB: ";
-                            for( int j = 0; j < g._E; j++ )
-                                if(AB[j])
-                                    s << j << " ";
-                            s << "AuB: ";
-                            for( int j = 0; j < g._E; j++ )
-                                if(subgraph[j])
-                                    s << j << " ";
-                            s << ". We get the violation of the property z(A) + z(B) <= z(AnB) + z(AuB).";
-                            cout << s.str() << endl;
-*/
-                        }
-                    }
-                }
-            }
+                bGPprop = bGPprop && has_subgraph_gp_property(g, subgraph, subgraph_table, L, mm );
 
             subgraph_table[subgraph.data()] = make_tuple( Jr, r, mm, L );
         }

@@ -31,7 +31,7 @@ def is_close(res_1, res_2):
 # compare tests with files
 def compare_w_file(res_1, example):
     res_2 = from_file(example)
-    print("\nratios w.r.t. file (should be close to 1):\n")
+    print("\nratios w.r.t. file (should all be close to 1 + i):\n")
     for i in range(len(res_1)):
         re_1 , re_2 = res_1[i][0][0] , res_2[i][0][0]
         im_1 , im_2 = res_1[i][1][0] , res_2[i][1][0]
