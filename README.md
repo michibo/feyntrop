@@ -6,7 +6,7 @@
 The whole **feyntrop** project  is managed  as [a github repository](//github.com/michibo/feyntrop/). Comments, bug-reports and pull-requests are very welcome.
 
 If **feyntrop** is helpful in your research, please cite, [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime', *Computer Physics Communications*, 292 (2023), 108874](//doi.org/10.1016/j.cpc.2023.108874) [arXiv:2302.08955](//arxiv.org/abs/2302.08955)
-as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals', Annales de l'Institut Henri Poincaré D (2023) to appear (online first)](//doi.org/10.4171/AIHPD/158) [arXiv:2008.12310](//arxiv.org/abs/2008.12310).
+as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals', Ann. Inst. Henri Poincaré Comb. Phys. Interact. 10 (2023), no. 4, pp. 635–685](//doi.org/10.4171/AIHPD/158) [arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
 The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, the [xoshiro256+](http://prng.di.unimi.it/) random number generator and the [JSON for Modern C++](//github.com/nlohmann/json) library.
 
