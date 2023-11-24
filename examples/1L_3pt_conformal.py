@@ -16,7 +16,7 @@ edges = [((0,1), 1/2, '0'), ((1,2), 1/2, '0'), ((2,0), 1/2, '0')]
 # replace scalar products in terms of chosen kinematic variables. Here s = (p0 + p1)^2
 replacement_rules = [(sp[0,0], 'pp0'), (sp[1,1], 'pp1'), (sp[0,1], '(s-pp0-pp1)/2')]
 
-# numerically evaluate at this point
+# numerically evaluate at this Euclidean point
 phase_space_point = [('pp0', -2), ('pp1', -3), ('s', -5)]
 
 # D = D0 - 2*eps dimensions

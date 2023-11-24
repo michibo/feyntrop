@@ -43,7 +43,7 @@ Tests
 -----
 
 To run the tests, make sure to have [Python](//python.org) installed.
-To ensure that **feyntrop** was built correctly, please run the file `/tests/test_suite.py`. That means running
+To ensure that **feyntrop** was built correctly, run the file `/tests/test_suite.py`. That means running
 ```
 cd tests
 python test_suite.py
@@ -72,9 +72,9 @@ in the top directory of this repository to open the tutorial notebook.
 Examples
 --------
 
-The `examples/` folder in this repository contains a variety of examples for Feynman integral computations using `feyntrop` with 
-the Python interface.
-In this folder, you can, for instance, run the 5-loop 2-point example from the paper with the command
+You might prefer a simple script file instead of a `jupyter notebook`. The file `simple_example_2L_3pt.py` contains the example from the tutorial notebook. The comments in this file completely explain the usage of `feyntrop` using the `Python` interface.
+
+Moreover, the `examples/` folder in this repository contains a variety of more complicated examples for Feynman integral computations using `feyntrop` with the Python interface.  In this folder, you can, for instance, run the 5-loop 2-point example from the paper with the command 
 ```
 python 5L_2pt.py
 ```
