@@ -1,11 +1,11 @@
 [feyntrop](//michaelborinsky.com/feyntrop)
 ==========================================
 
-**feyntrop** is a computer program to evaluate Feynman integrals. The core `C++` integration code, written mainly by [Michael Borinsky](//michaelborinsky.com), is an update of the proof-of-concept implementation [tropical-feynman-quadrature](https://github.com/michibo/tropical-feynman-quadrature), published with the paper ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310). **feyntrop** can be used through a high-level [Python](//python.org) interface, written by Henrik Munch.
+**feyntrop** is a computer program to evaluate Feynman integrals. The core `C++` integration code, written mainly by [Michael Borinsky](//michaelborinsky.com), is an update of the proof-of-concept implementation [tropical-feynman-quadrature](https://github.com/michibo/tropical-feynman-quadrature), published with the paper ['Tropical Monte Carlo quadrature for Feynman integrals'](//arxiv.org/abs/2008.12310). **feyntrop** can be used through a high-level [Python](//python.org) interface written by Henrik Munch.
 
-The whole **feyntrop** project  is managed  as [a github repository](//github.com/michibo/feyntrop/). Comments, bug reports, and pull requests are very welcome.
+The whole **feyntrop** project  is managed  as [a GitHub repository](//github.com/michibo/feyntrop/). Comments, bug reports, and pull requests are very welcome.
 
-If **feyntrop** is helpful in your research, please cite [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime', *Computer Physics Communications*, 292 (2023), 108874](//doi.org/10.1016/j.cpc.2023.108874) [arXiv:2302.08955](//arxiv.org/abs/2302.08955)
+If **feyntrop** is helpful in your research, please cite [M. Borinsky, H. J. Munch, F. Tellander: 'Tropical Feynman integration in the Minkowski regime,' *Computer Physics Communications*, 292 (2023), 108874](//doi.org/10.1016/j.cpc.2023.108874) [arXiv:2302.08955](//arxiv.org/abs/2302.08955)
 as well as [M. Borinsky: 'Tropical Monte Carlo quadrature for Feynman integrals', Ann. Inst. Henri Poincaré Comb. Phys. Interact. 10 (2023), no. 4, pp. 635–685](//doi.org/10.4171/AIHPD/158) [arXiv:2008.12310](//arxiv.org/abs/2008.12310).
 
 The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, the [xoshiro256+](http://prng.di.unimi.it/) random number generator, and the [JSON for Modern C++](//github.com/nlohmann/json) library.
@@ -13,7 +13,7 @@ The implementation internally uses [Eigen](http://eigen.tuxfamily.org), OpenMP, 
 Download
 --------
  
-To download **feyntrop** use the command
+To download **feyntrop**, use the command
 
 ```
 git clone https://github.com/michibo/feyntrop.git
@@ -23,7 +23,7 @@ cd feyntrop
 Compilation
 -----------
 
-To (re)compile **feyntrop** call
+To (re)compile **feyntrop**, call
 
 ```
 make clean && make
@@ -74,7 +74,7 @@ Examples
 
 You might prefer a simple script file instead of a `jupyter notebook`. The file `simple_example_2L_3pt.py` contains the example from the tutorial notebook. The comments in this file completely explain the usage of `feyntrop` using the `Python` interface.
 
-Moreover, the `examples/` folder in this repository contains a variety of more complicated examples for Feynman integral computations using `feyntrop` with the Python interface.  In this folder, you can, for instance, run the 5-loop 2-point example from the paper with the command 
+Moreover, the `examples/` folder in this repository contains various more complicated examples for Feynman integral computations using `feyntrop` with the Python interface.  In this folder, you can, for instance, run the 5-loop 2-point example from the paper with the command 
 ```
 python 5L_2pt.py
 ```
@@ -82,7 +82,7 @@ python 5L_2pt.py
 Low-level interface
 -------------------
 
-**feyntrop** can also be used with a low-level command-line interface without Python. This might be convenient in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
+**feyntrop** can also be used with a low-level command-line interface without Python. This interface might be convenient in a high-performance computing environment. To use this interface, create a file similar to the `low_level_input.json` file in this repository. Here is the content of this file:
 ```
 {
   "graph" : [ [ [0, 1], 1 ], [ [0, 2], 1 ], [ [0, 3], 1 ], [ [1, 2], 1 ], [ [2, 3], 1], [ [3, 1], 1 ] ],
@@ -102,7 +102,7 @@ The field `"graph"` encodes the Feynman graph. It is a list of edges of the form
 ```
 [ [ [v0, w0], nu0 ], [ [v1, w1], nu1 ], [ [v2, w2], nu2 ],... ]
 ```
-where `v0,w0` and so on are pairs of vertices corresponding to an edge and `nu0` is the corresponding edge weight.
+where `v0,w0`, `v1,w1`, and so on are pairs of vertices corresponding to edges and `nu0`, `nu1`, ... are the corresponding edge weights.
 The field `"scalarproducts"` is a matrix of scalar products. The `(v,w)`-th entry of the matrix is the scalar product of `p_u * p_v`, where `p_u` is the incoming momentum into vertex `u`. Hence, the matrix must be symmetric and have as many rows and columns as vertices. (Vertices without incoming momentum can be represented by setting the respective row and column equal to 0.) Due to momentum conservation, the rows and columns of the matrix must sum to 0.
 
 The field `"masses_sqr"` is a list of masses containing one mass for each edge. (Of course, the masses might be 0.)
@@ -122,8 +122,8 @@ in the form
 ```
 [ [ [ Re(I0), Delta(Re(I0)) ], [Im(I0), Delta(Im(I0))] ], [ [ Re(I1), Delta(Re(I1)) ], [Im(I1), Delta(Im(I1))] ], ... ]
 ```
-where `Delta` is the respective error term (i.e. one expected standard deviation) and 
-where `Re` and `Im` denote the real and imaginary part of the respective coefficient in the expansion.
+where `Delta` is the respective error term (i.e., one expected standard deviation) and 
+where `Re` and `Im` denote the real and imaginary parts of the respective coefficient in the expansion.
 
 The other fields store the sampling and the preprocessing time.
 
@@ -136,7 +136,7 @@ instead.
 Changing the number of CPUs used
 --------------------------------
 
-By default, **feyntrop** uses the maximal number of available CPUs in the sampling step. This behaviour can be changed using the environment variable `OMP_NUM_THREADS`.
+By default, **feyntrop** uses the maximal number of available CPUs in the sampling step. This behavior can be changed using the environment variable `OMP_NUM_THREADS`.
 For instance, the command
 ```
 OMP_NUM_THREADS=2 ./feyntrop < low_level_input.json 2> /dev/null
@@ -147,4 +147,4 @@ A similar option can be used with the Python interface.  For instance,
 ```
 OMP_NUM_THREADS=2 python 5L_2pt.py
 ```
-runs the 5 loop 2-point integral example with two threads.
+runs the 5-loop 2-point integral example with two threads.
