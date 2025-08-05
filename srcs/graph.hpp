@@ -79,23 +79,6 @@ public:
 
         return true;
     }
-/*
-    bool next_permutation()
-    {
-        int i = _size - 1;
-        // Find the rightmost element that can be incremented
-        while (i >= 0 && (*this)[i] == 0) {
-            --i;
-        }
-        if (i < 0) return false; // no next combination
-
-        ++comb[i];
-        for (int j = i + 1; j < nC; ++j) {
-            comb[j] = comb[j - 1] + 1;
-        }
-        return true;
-    }
-*/
 
 public:
     bool operator[]( int n ) const
