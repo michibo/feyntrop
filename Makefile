@@ -13,7 +13,7 @@ CXXFLAGS+= -fopenmp
 CXXFLAGS+= -Iextern/eigen -Iextern
 CXXFLAGS+= -std=c++11 
 CXXFLAGS+= -ffast-math -funsafe-math-optimizations -fno-finite-math-only -O3
-#CXXFLAGS+= -DNDEBUG
+CXXFLAGS+= -DNDEBUG
 CXXFLAGS+= -Wno-unused-variable -Wno-maybe-uninitialized
 
 MAIN=feyntrop examples/feyntrop tests/feyntrop
