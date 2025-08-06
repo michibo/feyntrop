@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
     J_vector subgraph_table;
 
-    int W; // superficial degree of divergence w(G)
+    double W; // superficial degree of divergence w(G)
     double IGtr; // tropicalized Feynman integral I_G^tr
     bool bGeneric;
     bool bPseudoEuclidean;
